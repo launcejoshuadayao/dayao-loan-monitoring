@@ -1,0 +1,13 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap");
+
+      /* colorpalette 
+      #205781 bluemine
+      #4F959D Wedgewood
+      #98D2C0 Sinbad
+      #F6F8D5 Coconut Cream */
+
+      * {
+        margin: 0;
+        padding: 0;
+        font-family: "Montserrat";
+      }
