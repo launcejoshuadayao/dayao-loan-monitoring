@@ -56,7 +56,8 @@ def login():
 @app.route('/superadmin')
 def superadmin_dashboard():
     if 'role' in session and session['role'] == 'superadmin':
-        return render_template('superadmin/superadmin_dashboard.html')
+        user = db.session.get(User, session['user_id'])
+        return render_template('superadmin/superadmin_dashboard.html', username=user.username)
     flash("Unauthorized access!", "danger")
     return redirect(url_for('login'))
 

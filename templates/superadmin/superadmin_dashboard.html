@@ -3,14 +3,209 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.3/dist/sweetalert2.min.css">
+    <title>SSCC</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.3/dist/sweetalert2.min.css"
+    />
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.3/dist/sweetalert2.all.min.js"></script>
-    <link rel="stylesheet"  href="{{ url_for('static', filename='css/superadmin.css') }}">
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/superadmin.css') }}"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      href="{{ url_for('static', filename='images/coop.png') }}"
+    />
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=folder_eye" />
   </head>
   <body>
-    <h1>SUPERADMIN DASHBOARD</h1>
-    <a href="{{url_for('logout')}}">Logout</a>
+    <div class="main">
+      <div class="sidebar">
+        <div class="logo">
+          <img src="../static/images/coop.png" alt="">
+          <span>Saytan SCC</span>
+        </div>
+        <ul class="menu">
+          
+          <li class="active">
+            <a href="#" >
+              <i class="fas fa-tachometer-alt"></i>
+              <span>Dasboard</span>
+            </a>
+          </li>
+          <li>
+            <a href="#">
+              <i class="fa-solid fa-chart-simple"></i>
+              <span>Monitoring</span>
+            </a>
+          </li>
+          <li>
+            <a href="#">
+              <i class="fa-solid fa-receipt"></i>
+              <span>Paid Loans</span>
+            </a>
+          </li>
+          <li>
+            <a href="#">
+              <i class="fa-solid fa-circle-exclamation"></i>
+              <span>Overdue</span>
+            </a>
+          </li>
+          <li>
+            <a href="#">
+              <i class="fa-solid fa-scroll"></i>
+              <span>Logs</span>
+            </a>
+          </li>
+          <li>
+            <a href="#">
+              <i class="fa-solid fa-user"></i>
+              <span>Accounts</span>
+            </a>
+          </li>
+          <li class = "logout">
+            <a href="#" onclick="confirmLogout()">
+              <i class="fa-solid fa-right-from-bracket"></i>
+              <span>Logout</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="content">
+        <div class="content-header">
+          <div class="header-title">
+            <span>Hello, {{ username }}!</span>
+            <h2>SSCC Dashboard</h2>
+          </div>
+          <div class="user-info">
+            <div class="search-field">
+              <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" placeholder="Search">
+          </div>
+          <img src="../static/images/coop.png" alt="">
+          </div>
+        </div>
+        <div class="card-container">
+          <h3 class="card-title">Loan Monitoring Overview</h3>
+          <div class="card-wrapper">
+            <div class="card">
+              <div class="card-header">
+                <div class="total">
+                  <span class="title">Total Active Loans</span>
+                  <span class="total-value">24</span>
+                </div>
+                <i class="fa-solid fa-chart-simple icon"></i>
+              </div>
+              <span class="card-detail">Total Active Loans</span>
+            </div>
+
+            <div class="card light-green">
+              <div class="card-header">
+                <div class="total">
+                  <span class="title">Total Paid Loans</span>
+                  <span class="total-value">24</span>
+                </div>
+                <i class="fa-solid fa-calendar-check icon"></i>
+              </div>
+              <span class="card-detail">Total Paid Loans</span>
+            </div>
+
+            <div class="card light-red">
+              <div class="card-header">
+                <div class="total">
+                  <span class="title">Overdue Loans</span>
+                  <span class="total-value">24</span>
+                </div>
+                <i class="fa-solid fa-triangle-exclamation icon"></i>
+              </div>
+              <span class="card-detail">Overdue Loans</span>
+            </div>
+
+            <div class="card light-orange">
+              <div class="card-header">
+                <div class="total">
+                  <span class="title">Total Users</span>
+                  <span class="total-value">24</span>
+                </div>
+                <i class="fa-solid fa-users icon"></i>
+              </div>
+              <span class="card-detail">Total Users</span>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="table-container">
+          <h3 class ="card-title">Loan Data</h3>
+          <div class="table">
+            <table>
+              <thead>
+                <tr>
+                  <th>Lender</th>
+                  <th>loreas</th>
+                  <th>asdasdas</th>
+                  <th>asdasdas</th>
+                  <th>asdasdasd</th>
+                  <th>asdasdasd</th>
+                </tr>
+                <tbody>
+                  <tr>
+                    <td>Launce</td>
+                    <td>Joshua</td>
+                    <td>Dayao</td>
+                    <td>asdasd</td>
+                    <td>asdasda</td>
+                    <td><button type="submit">Edit</button></td>
+                  </tr>
+                  <tr>
+                    <td>vxcvxcv</td>
+                    <td>aghdfgf</td>
+                    <td>casdasd</td>
+                    <td>vbnvbn</td>
+                    <td>aseqwe</td>
+                    <td><button type="submit">Edit</button></td>
+                  </tr>
+                  
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <td colspan="6">
+                      Total: 2
+                    </td>
+                  </tr>
+                </tfoot>
+              </thead>
+              
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+
+    <script>
+      function confirmLogout() {
+          Swal.fire({
+              title: "Are you sure?",
+              text: "You will be logged out!",
+              icon: "warning",
+              showCancelButton: true,
+              confirmButtonColor: "#3085d6",
+              cancelButtonColor: "#d33",
+              confirmButtonText: "Yes, logout!"
+          }).then((result) => {
+              if (result.isConfirmed) {
+                  window.location.href = "{{ url_for('logout') }}";
+              }
+          });
+      }
+      </script>
 
     {% with messages = get_flashed_messages(with_categories=true) %} {% if
     messages %} {% for category, message in messages %}
@@ -22,7 +217,5 @@
       });
     </script>
     {% endfor %} {% endif %} {% endwith %}
-
-
   </body>
 </html>
