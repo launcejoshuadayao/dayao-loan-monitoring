@@ -1,0 +1,102 @@
+.table-monitoring-header .add-loan{
+    margin-bottom: 10px;
+    background-color: #4F959D;
+    color: white;
+    padding: 8px 30px 8px 30px;
+    font-size: 14px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.add-loan:hover{
+    background-color: #34767d;
+}
+
+.table-monitoring-header{
+    width: auto;
+}
+
+/* add form */
+.popup {
+  display: none;
+  position: fixed;
+  z-index: 999;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 20px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+    
+}
+
+.popup-content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.close {
+  position: absolute;
+  right: 10px;
+  top: 5px;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.popup-content form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    
+  }
+  
+  .form-group label {
+    font-weight: bold;
+    margin-bottom: 5px;
+    
+  }
+  
+  .form-group input {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    width: 100%;
+  }
+  
+  .form-group input:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+  }
+  
+  .button-group {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 10px;
+  }
+  
+  .button-group button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  
+  .button-group .btn-submit {
+    background-color: #007bff;
+    color: white;
+  }
+  
+  .button-group .btn-submit:hover {
+    background-color: #0056b3;
+  }
+  

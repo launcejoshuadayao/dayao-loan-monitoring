@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block content %}
+        <div class="content-header">
+          <div class="header-title">
+            <span>Saytan Savings and Credit Cooperative</span>
+            <h2>Activity Log Monitoring</h2>
+          </div>
+          <div class="user-info">
+            <div class="search-field">
+              <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" placeholder="Search">
+          </div>
+          <img src="../static/images/coop.png" alt="">
+          </div>
+        </div>
+        <div class="table-container">
+            <h3 class ="card-title">Loan Data</h3>
+            <div class="table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Lender</th>
+                    <th>loreas</th>
+                    <th>asdasdas</th>
+                    <th>asdasdas</th>
+                    <th>asdasdasd</th>
+                    <th>asdasdasd</th>
+                  </tr>
+                  <tbody>
+                    <tr>
+                      <td>Launce</td>
+                      <td>Joshua</td>
+                      <td>Dayao</td>
+                      <td>asdasd</td>
+                      <td>asdasda</td>
+                      <td><button type="submit">Edit</button></td>
+                    </tr>
+                    <tr>
+                      <td>vxcvxcv</td>
+                      <td>aghdfgf</td>
+                      <td>casdasd</td>
+                      <td>vbnvbn</td>
+                      <td>aseqwe</td>
+                      <td><button type="submit">Edit</button></td>
+                    </tr>
+                    
+                  </tbody>
+                  <tfoot>
+                    <tr>
+                      <td colspan="6">
+                        Total: 2
+                      </td>
+                    </tr>
+                  </tfoot>
+                </thead>
+                
+              </table>
+            </div>
+          </div>
+
+        {% endblock %}
+      </div>
+    </div>
+
+
+    <script>
+      function confirmLogout() {
+          Swal.fire({
+              title: "Are you sure?",
+              text: "You will be logged out!",
+              icon: "warning",
+              showCancelButton: true,
+              confirmButtonColor: "#3085d6",
+              cancelButtonColor: "#d33",
+              confirmButtonText: "Yes, logout!"
+          }).then((result) => {
+              if (result.isConfirmed) {
+                  window.location.href = "{{ url_for('logout') }}";
+              }
+          });
+      }
+      </script>
+
+    {% with messages = get_flashed_messages(with_categories=true) %} {% if
+    messages %} {% for category, message in messages %}
+    <script>
+      Swal.fire({
+        title: "{{ category.title() }}!",
+        text: "{{ message }}",
+        icon: "{{ category }}" == "danger" ? "error" : "{{ category }}",
+      });
+    </script>
+    {% endfor %} {% endif %} {% endwith %}
+  </body>
+</html>

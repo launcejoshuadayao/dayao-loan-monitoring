@@ -1,7 +1,92 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SSCC</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.3/dist/sweetalert2.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.3/dist/sweetalert2.all.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/superadmin.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/monitoring.css') }}"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      href="{{ url_for('static', filename='images/coop.png') }}"
+    />
+    
 
-{% block content %}
-        <div class="content-header">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=folder_eye" />
+  </head>
+  <body>
+    <div class="main">
+      <div class="sidebar">
+        <div class="logo">
+          <img src="../static/images/coop.png" alt="">
+          <span>Saytan SCC</span>
+        </div>
+        <ul class="menu">
+          
+          <li class="{% if request.endpoint == 'superadmin_dashboard' %}active{% endif %}">
+            <a href="{{ url_for('superadmin_dashboard') }}" >
+              <i class="fas fa-tachometer-alt"></i>
+              <span>Dasboard</span>
+            </a>
+          </li>
+          <li class="{% if request.endpoint == 'superadmin_monitoring' %}active{% endif %}">
+            <a href="{{ url_for('superadmin_monitoring') }}">
+              <i class="fa-solid fa-chart-simple"></i>
+              <span>Monitoring</span>
+            </a>
+          </li>
+          <li class="{% if request.endpoint == 'superadmin_paid_loans' %}active{% endif %}">
+            <a href="{{ url_for('superadmin_paid_loans') }}">
+              <i class="fa-solid fa-receipt"></i>
+              <span>Paid Loans</span>
+            </a>
+          </li>
+          <li  class="{% if request.endpoint == 'superadmin_overdue_loans' %}active{% endif %}">
+            <a href="{{ url_for('superadmin_overdue_loans') }}">
+              <i class="fa-solid fa-circle-exclamation"></i>
+              <span>Overdue</span>
+            </a>
+          </li>
+          <li  class="{% if request.endpoint == 'superadmin_activity_logs' %}active{% endif %}">
+            <a href="{{ url_for('superadmin_activity_logs') }}">
+              <i class="fa-solid fa-scroll"></i>
+              <span>Logs</span>
+            </a>
+          </li>
+          <li class="{% if request.endpoint == 'superadmin_manage_users' %}active{% endif %}">
+            <a href="{{ url_for('superadmin_manage_users') }}">
+              <i class="fa-solid fa-user"></i>
+              <span>Manage Users</span>
+            </a>
+          </li>
+          <li class = "logout">
+            <a href="#" onclick="confirmLogout()">
+              <i class="fa-solid fa-right-from-bracket"></i>
+              <span>Logout</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="content">
+
+        {% block content %}
+        {% endblock %}
+
+        <!-- <div class="content-header">
           <div class="header-title">
             <span>Hello, {{ username }}!</span>
             <h2>SSCC Dashboard</h2>
@@ -65,11 +150,7 @@
         </div>
 
         <div class="table-container">
-          <div class="table-header">
-            <h3 class ="card-title">Loan Data</h3>
-          <a href="{{ url_for('superadmin_monitoring') }}">Go to Page</a>
-          </div>
-          
+          <h3 class ="card-title">Loan Data</h3>
           <div class="table">
             <table>
               <thead>
@@ -111,8 +192,8 @@
               
             </table>
           </div>
-        </div>
-        {% endblock %}
+        </div> -->
+
       </div>
     </div>
 
