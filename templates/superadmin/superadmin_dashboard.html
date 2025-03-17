@@ -75,36 +75,28 @@
               <thead>
                 <tr>
                   <th>Lender</th>
-                  <th>loreas</th>
-                  <th>asdasdas</th>
-                  <th>asdasdas</th>
-                  <th>asdasdasd</th>
-                  <th>asdasdasd</th>
+                  <th>Loan Amount</th>
+                  <th>Application Date</th>
+                  <th>No. of Months to Pay</th>
+                  <th>Monthly Payment</th>
+                  <th>Action</th>
                 </tr>
                 <tbody>
+                  {% for loan in loans %}
                   <tr>
-                    <td>Launce</td>
-                    <td>Joshua</td>
-                    <td>Dayao</td>
-                    <td>asdasd</td>
-                    <td>asdasda</td>
+                    <td>{{ loan.lender_name }}</td>
+                    <td>&#8369;{{ loan.amount }}</td>
+                    <td>{{ loan.application_date.strftime('%Y-%m-%d') }}</td>
+                    <td>{{ loan.months_to_pay }}</td>
+                    <td>&#8369;{{ loan.monthly_payment }}</td>
                     <td><button type="submit">Edit</button></td>
                   </tr>
-                  <tr>
-                    <td>vxcvxcv</td>
-                    <td>aghdfgf</td>
-                    <td>casdasd</td>
-                    <td>vbnvbn</td>
-                    <td>aseqwe</td>
-                    <td><button type="submit">Edit</button></td>
-                  </tr>
-                  
+                  {% endfor %}
                 </tbody>
                 <tfoot>
                   <tr>
-                    <td colspan="6">
-                      Total: 2
-                    </td>
+                    <td colspan="6" style="font-size: 16px; font-weight: 400; color: whitesmoke;">Total No. of Application: {{ total_applications }} <br> Total Amount Loaned: &#8369;{{ total_amount }}</td>
+                    <!-- <td colspan="2"><strong>Total Applications:</strong> {{ total_applications }}</td> -->
                   </tr>
                 </tfoot>
               </thead>
