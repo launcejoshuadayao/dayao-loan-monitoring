@@ -7,9 +7,10 @@
             <h2>SSCC Dashboard</h2>
           </div>
           <div class="user-info">
-            <div class="search-field">
-              <i class="fa-solid fa-magnifying-glass"></i>
-            <input type="text" placeholder="Search">
+            <div >
+              <!-- <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" placeholder="Search"> -->
+            <h4 style="color: #34767d;">Saytan Savings and Credit Cooperative</h4>
           </div>
           <img src="../static/images/coop.png" alt="">
           </div>
@@ -66,7 +67,7 @@
 
         <div class="table-container">
           <div class="table-header">
-            <h3 class ="card-title">Loan Data</h3>
+            <h3 class ="card-title">Loan Monitoring Data</h3>
           <a href="{{ url_for('superadmin_monitoring') }}">Go to Page</a>
           </div>
           
@@ -79,7 +80,8 @@
                   <th>Application Date</th>
                   <th>No. of Months to Pay</th>
                   <th>Monthly Payment</th>
-                  <th>Action</th>
+                  <th>Status</th>
+                  
                 </tr>
                 <tbody>
                   {% for loan in loans %}
@@ -89,7 +91,7 @@
                     <td>{{ loan.application_date.strftime('%Y-%m-%d') }}</td>
                     <td>{{ loan.months_to_pay }}</td>
                     <td>&#8369;{{ loan.monthly_payment }}</td>
-                    <td><button type="submit">Edit</button></td>
+                    <td>{{loan.status}}</td>
                   </tr>
                   {% endfor %}
                 </tbody>

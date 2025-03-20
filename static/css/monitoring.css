@@ -24,12 +24,13 @@
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  background-color: #ebe9e9;
-
+  background-color: #F6F8D5;
+  color: #205781;
   padding: 20px 50px 20px 50px;
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
   border-radius: 8px;
   width: 60%;
+  
   
     
 }
@@ -128,5 +129,12 @@
     cursor: pointer;
   }
 
-  
+  .actions button{
+    padding: 8px 30px 8px 30px;
+    font-size: 14px;
+    border: none;
+    border-radius: 5px;
+    
+    cursor: pointer;
+  }
   

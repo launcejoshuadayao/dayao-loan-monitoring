@@ -32,6 +32,7 @@
                     <th>Application Date</th>
                     <th>No. of Months to Pay</th>
                     <th>Monthly Payment</th>
+                    <th>Loan Status</th>
                     <th>Action</th>
                   </tr>
                   <tbody>
@@ -39,12 +40,20 @@
                     <tr>
                       <td>{{ loan.lender_name }}</td>
                       <td>&#8369;{{ loan.amount }}</td>
-                      <td>{{ loan.application_date.strftime('%Y-%m-%d') }}</td>
+                      <td>{{ loan.application_date.strftime('%B %d, %Y') }}</td>
                       <td>{{ loan.months_to_pay }}</td>
                       <td>&#8369;{{ loan.monthly_payment }}</td>
-                      <td><div class="actions" style="display: flex; justify-content: stretch; gap: 10px; ">
-                        <button type="submit" title="View Schedule"><i class="ri-calendar-event-fill" style="color: orangered;"></i></button>
-                        <button type="submit" title="Export to CSV"><i class="ri-file-excel-2-fill" style="color: green;"></i></button>
+                      <td>{{ loan.status }}</td>
+                      <td><div class="actions" style="display: flex; justify-content: start; gap: 10px; ">
+                        <a href="" title="Edit" style="text-decoration: none;">
+                          <i class="ri-pencil-fill" style="color: brown;"></i>
+                        </a>
+                        <a href="{{ url_for('loan_schedule', loan_id=loan.loan_id) }}" title="View Schedule" style="text-decoration: none;">
+                          <i class="ri-calendar-event-fill" style="color: orangered;"></i>
+                        </a>
+                        <a href="{{ url_for('loan_schedule', loan_id=loan.loan_id) }}" title="View Schedule" style="text-decoration: none;">
+                          <i class="ri-file-excel-2-fill" style="color: green;"></i>
+                        </a>
                       </div></td>
                       
                    
@@ -54,7 +63,7 @@
                   </tbody>
                   <tfoot>
                     <tr>
-                      <td colspan="6" style="font-size: 16px; font-weight: 400; color: whitesmoke;">Total No. of Application: {{ total_applications }} <br> Total Amount Loaned: &#8369;{{ total_amount }}</td>
+                      <td colspan="7" style="font-size: 16px; font-weight: 400; color: whitesmoke;">Total No. of Application: {{ total_applications }} <br> Total Amount Loaned: &#8369;{{ total_amount }}</td>
                       <!-- <td colspan="2"><strong>Total Applications:</strong> {{ total_applications }}</td> -->
                     </tr>
                   </tfoot>
@@ -168,6 +177,11 @@ function openPopup() {
         });
     });
 });
+
+let today = new Date().toISOString().split('T')[0];
+  let appDateInput = document.getElementById("application_date");
+  appDateInput.value = today;
+  appDateInput.max = today; 
 </script>
 
         {% endblock %}

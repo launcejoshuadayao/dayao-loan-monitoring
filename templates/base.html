@@ -45,7 +45,7 @@
               <span>Dasboard</span>
             </a>
           </li>
-          <li class="{% if request.endpoint == 'superadmin_monitoring' %}active{% endif %}">
+          <li class="{% if request.endpoint == 'superadmin_monitoring' or request.endpoint == 'loan_schedule' %}active{% endif %}">
             <a href="{{ url_for('superadmin_monitoring') }}">
               <i class="fa-solid fa-chart-simple"></i>
               <span>Monitoring</span>

@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="content-header">
+  <div class="header-title">
+    <span>Saytan Savings and Credit Cooperative</span>
+    <h2>Loan Payment Schedule</h2>
+  </div>
+  <div class="user-info">
+    <!-- <div class="search-field">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input type="text" placeholder="Search">
+    </div> -->
+    <img src="{{ url_for('static', filename='images/coop.png') }}" alt="">
+  </div>
+</div>
+
+<div class="table-container">
+  <div class="table-header">
+    <h3 class="card-title">Payment Schedule for: <strong style="font-size: 20px;">{{ loan.lender_name }}</strong></h3>
+    <a href="{{ url_for('superadmin_monitoring') }}">Back to Monitoring</a>
+  </div>
+
+  <div class="table">
+    <table>
+      <thead>
+        <tr>
+          <th>Due Date</th>
+          <th>Amount Due</th>
+          <th>Status</th>
+          <th>Amount Paid</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for payment in payments %}
+        <tr>
+          <td>{{ payment.due_date.strftime('%B %d, %Y') }}</td>
+          <td>&#8369;{{ payment.amount_due }}</td>
+         
+          <td>{{ payment.status }}</td>
+          <td>&#8369;{{payment.amount_paid}}</td>
+          <td>
+            <div class="actions" style="display: flex; justify-content: start; gap: 10px;">
+              <a href="javascript:void(0);" title="Partial Pay" style="text-decoration: none;" onclick="openPopup('{{ payment.loan_payment_id }}', '{{ payment.amount_due }}', '{{ payment.due_date.isoformat() if payment.due_date else ','}}')">
+                <i class="ri-bank-card-line" style="color: rgb(22, 22, 238);"></i>
+              </a>
+              <a href="" title="Full Payment" style="text-decoration: none;">
+                <i class="ri-secure-payment-fill" style="color: green;"></i>
+              </a>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
+<div id="loanPopup" class="popup" style="display: none;">
+  <div class="popup-content">
+    <span class="close" onclick="closePopup()">&times;</span>
+    <h1 class="form-title">Loan Payment for <span id="popupLenderName">{{ loan.lender_name }}</span></h1>
+    <form action="{{ url_for('partial_payment') }}" method="post" id="loanForm">
+      
+      <input type="hidden" id="loan_payment_id" name="loan_payment_id">
+
+      <p><strong>Due Date:</strong> <span id="dueDate"></span></p>
+      <p><strong>Remaining Balance:</strong> <span id="remainingBalance"></span></p>
+
+      <div class="form-group">
+        <label for="amount_paid">Enter Amount to Pay</label>
+        <input type="number" step="0.01" id="amount_paid" name="amount_paid" min="1" required>
+      </div>
+
+      <div class="button-group">
+        <button type="submit" class="btn-submit">Submit Payment</button>
+        <button type="button" class="btn-cancel" onclick="closePopup()">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  function openPopup(loanPaymentId, amountDue, dueDate) {
+    document.getElementById("loanPopup").style.display = "block";
+    document.getElementById("loan_payment_id").value = loanPaymentId;
+    document.getElementById("amount_paid").max = amountDue;
+    let formattedDate;
+      if (dueDate) {
+          let dateObj = new Date(dueDate);
+          if (!isNaN(dateObj.getTime())) {
+              formattedDate = dateObj.toLocaleDateString('en-US', {
+                  year: 'numeric', month: 'long', day: 'numeric'
+              });
+          } else {
+              formattedDate = "Invalid Date"; // Fallback if conversion fails
+          }
+      } else {
+          formattedDate = "No Due Date";
+      }
+    
+    document.getElementById("dueDate").innerText = formattedDate;
+    document.getElementById("remainingBalance").innerText = "₱" + parseFloat(amountDue).toFixed(2);
+    
+  }
+
+  function closePopup() {
+    document.getElementById("loanPopup").style.display = "none";
+  }
+</script>
+
+{% endblock %}
