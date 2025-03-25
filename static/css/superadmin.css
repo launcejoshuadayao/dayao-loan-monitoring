@@ -95,6 +95,8 @@
         font-size: 17px;
       }
 
+      
+
       .logout{
         position: absolute;
         bottom: 0;
@@ -306,6 +308,7 @@
       }
 
       tfoot{
+        
         background-color: #205781;
         font-weight: bold;
         color: #F6F8D5;
@@ -321,3 +324,27 @@
         cursor: pointer;
       } */
 
+      .pagination-container {
+        display: flex;
+        align-items: center;
+        justify-content: end;
+        gap: 10px;
+      }
+      
+      .pagination-container select, .pagination-container button {
+        padding: 5px 10px;
+        font-size: 14px;
+        /* border-radius: 5px; */
+      }
+    
+      .pagination-container button {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        cursor: pointer;
+      }
+    
+      .pagination-container button:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+      }

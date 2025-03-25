@@ -100,7 +100,7 @@
   }
   
   .button-group .btn-submit {
-    background-color: #007bff;
+    background-color: #4F959D;
     color: white;
   }
   .button-group .btn-cancel {
@@ -109,7 +109,7 @@
   }
   
   .button-group .btn-submit:hover {
-    background-color: #0056b3;
+    background-color: #34767d;
   }
 
   .button-group .btn-cancel:hover {
@@ -137,4 +137,5 @@
     
     cursor: pointer;
   }
+
   

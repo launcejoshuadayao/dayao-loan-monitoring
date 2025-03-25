@@ -9,22 +9,31 @@
             <h2>Loan Monitoring Table</h2>
           </div>
           <div class="user-info">
-            <div class="search-field">
-              <i class="fa-solid fa-magnifying-glass"></i>
-            <input type="text" placeholder="Search">
-          </div>
+            <h4 style="color: #205781;">{{username}}</h4>
           <img src="../static/images/coop.png" alt="">
           </div>
         </div>
         <div class="table-container">
             <div class="table-monitoring-header" >
-                <h3 class ="card-title">Loan Data</h3>
-                <button class="add-loan" onclick="openPopup()">Add Loan</button>
+                <h3 class ="card-title">Loan Data for Monthly Payment</h3>
+                <!-- <button class="add-loan">Add Loan</button> -->
+                 <div style="display: flex; flex-direction: row; justify-content: space-between;">
+                  <button class="add-loan" onclick="openPopup()">Add Monthly Loan</button>
+                  <input type="text" name="search" id="search">
+                  
+                    <div class="search-field">
+                      <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" placeholder="Search" id="search-input">
+                  </div>
+                 </div>
+               
+                
             </div>
+            
 
             
-            <div class="table">
-              <table>
+            <div class="table" id="tables">
+              <table id="loanTable">
                 <thead>
                   <tr>
                     <th>Lender</th>
@@ -63,7 +72,22 @@
                   </tbody>
                   <tfoot>
                     <tr>
-                      <td colspan="7" style="font-size: 16px; font-weight: 400; color: whitesmoke;">Total No. of Application: {{ total_applications }} <br> Total Amount Loaned: &#8369;{{ total_amount }}</td>
+                      <td colspan="7" style="color: whitesmoke;"> <div class="pagination-container1" style="display: flex; flex-direction: row; justify-content: space-between; ">
+                        <div class="pagination-container12" style="display: flex; justify-content: start; align-items: center; font-size: 16px; font-weight: 400; ">Total No. of Application: {{ total_applications }}</div>
+                        <div class="pagination-container">
+                        <label for="rowsPerPage">Rows per page:</label>
+                        <select id="rowsPerPage" onchange="updatePagination()">
+                          <option value="5" selected>5</option>
+                          <!-- <option value="10">10</option>
+                          <option value="15">15</option> -->
+                        </select>
+                      
+                        <span id="pageInfo"></span>
+                      
+                        <button id="prevPage" onclick="changePage(-1)">&#10094;</button>
+                        <button id="nextPage" onclick="changePage(1)">&#10095;</button>
+                      </div>
+                      </div> </td>
                       <!-- <td colspan="2"><strong>Total Applications:</strong> {{ total_applications }}</td> -->
                     </tr>
                   </tfoot>
@@ -71,6 +95,12 @@
                 
               </table>
             </div>
+
+            
+
+
+            
+            
           </div>
 
          
@@ -113,8 +143,91 @@
               
             </div>
           </div>
-              
 
+          <!-- pagination  and search -->
+          <script>
+          document.addEventListener("DOMContentLoaded", function () {
+    const searchInput = document.getElementById("search-input");
+    let currentPage = 1;
+    const rowsPerPage = 5; // Fixed to 5 rows per page
+    let allRows = Array.from(document.querySelectorAll("#loanTable tbody tr"));
+    let filteredRows = [...allRows]; // Initially, show all rows
+
+    function showPage(page) {
+        let start = (page - 1) * rowsPerPage;
+        let end = start + rowsPerPage;
+
+        // Hide all rows first
+        allRows.forEach(row => row.style.display = "none");
+
+        // Show only the filtered rows that belong to this page
+        filteredRows.slice(start, end).forEach(row => row.style.display = "");
+
+        // Update pagination info
+        document.getElementById("pageInfo").textContent =
+            `${start + 1} - ${Math.min(end, filteredRows.length)} of ${filteredRows.length} | Page ${page} of ${Math.ceil(filteredRows.length / rowsPerPage)}`;
+
+        // Enable/disable pagination buttons
+        document.getElementById("prevPage").disabled = (page === 1);
+        document.getElementById("nextPage").disabled = (end >= filteredRows.length);
+    }
+
+    function changePage(step) {
+        let newPage = currentPage + step;
+        if (newPage > 0 && newPage <= Math.ceil(filteredRows.length / rowsPerPage)) {
+            currentPage = newPage;
+            showPage(currentPage);
+        }
+    }
+
+    searchInput.addEventListener("input", function () {
+        const searchValue = this.value.toLowerCase();
+
+        // Filter rows based on search
+        filteredRows = allRows.filter(row => {
+            return Array.from(row.querySelectorAll("td")).some(cell =>
+                cell.textContent.toLowerCase().includes(searchValue)
+            );
+        });
+
+        currentPage = 1; // Reset to first page after search
+        showPage(currentPage);
+    });
+
+    document.getElementById("prevPage").addEventListener("click", () => changePage(-1));
+    document.getElementById("nextPage").addEventListener("click", () => changePage(1));
+
+    showPage(currentPage); // Initial load
+});
+          </script>
+
+<!------------------------------------------------------------------------------------------------- -->
+
+<!-- searching -->
+          <!-- <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                document.getElementById("search-input").addEventListener("input", function () {
+                    const searchValue = this.value.toLowerCase();
+                    const rows = document.querySelectorAll("#tables tbody tr");
+
+                    rows.forEach(row => {
+                        const cells = row.querySelectorAll("td");
+                        let match = false;
+                        cells.forEach(cell => {
+                            if (cell.textContent.toLowerCase().includes(searchValue)) {
+                                match = true;
+                            }
+                        });
+                        row.style.display = match ? "" : "none";
+                    });
+                });
+            });
+
+        </script> -->
+              
+<!-- ------------------------------------------------------------------------------------------------------------ -->
+
+<!-- loan form popup -->
 <script>
 
 function openPopup() {
@@ -183,6 +296,8 @@ let today = new Date().toISOString().split('T')[0];
   appDateInput.value = today;
   appDateInput.max = today; 
 </script>
+
+<!-- ------------------------------------------------------------------------------------------- -->
 
         {% endblock %}
 

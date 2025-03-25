@@ -1,7 +1,7 @@
 from flask import Flask, url_for, render_template, session, redirect, request, flash, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from dateutil.relativedelta import relativedelta
 
 
@@ -30,13 +30,13 @@ class LoanPayment(db.Model):
     loan_id = db.Column(db.Integer, db.ForeignKey('loan.loan_id'), nullable=False)
     due_date = db.Column(db.Date, nullable=False)
     amount_due = db.Column(db.Float, nullable=False)
-    status = db.Column(db.String(20), nullable=False, default='Active') 
+    status = db.Column(db.String(20), nullable=False, default='Current') 
     amount_paid = db.Column(db.Float, nullable=False, default=0.0)
 
     loan = db.relationship('Loan', backref=db.backref('payments', lazy=True))
 
 
-#loan class
+#loan monthly class
 class Loan(db.Model):
     __tablename__ = 'loan'
     loan_id = db.Column(db.Integer, primary_key=True)
@@ -45,7 +45,20 @@ class Loan(db.Model):
     application_date = db.Column(db.Date, nullable=False)
     months_to_pay = db.Column(db.Integer, nullable=False)
     monthly_payment = db.Column(db.Float, nullable=False)
-    status = db.Column(db.String(20), default='Active')
+    status = db.Column(db.String(20), default='Current')
+
+#KLoan for months class
+class LoanMonths(db.Model):
+    __tablename__ = 'loan_months'
+
+    id = db.Column(db.Integer, primary_key=True)
+    lender_name = db.Column(db.String(255), nullable=False)
+    total_loan_amount = db.Column(db.Float, nullable=False)
+    application_date = db.Column(db.Date, nullable=False)
+    months_to_pay = db.Column(db.Integer, nullable=False)
+    due_date = db.Column(db.Date, nullable=False)
+    paid_amount = db.Column(db.Float, default=0.0)
+    status = db.Column(db.String(20), nullable=False, default='Active')
 
 
 
@@ -103,27 +116,33 @@ def superadmin_dashboard():
 def superadmin_monitoring():
     if 'role' in session and session['role'] == 'superadmin':
         user = db.session.get(User, session['user_id'])
-        loans = Loan.query.all()  
+        loans = Loan.query.all()
         total_amount = sum(loan.amount for loan in loans)  # Calculate total loan amount
         total_applications = len(loans)  # Count total applications
-    
+
+        today = date.today()
 
         for loan in loans:
-            total_paid = db.session.query(db.func.sum(LoanPayment.amount_due))\
+            total_paid = db.session.query(db.func.sum(LoanPayment.amount_paid))\
                 .filter_by(loan_id=loan.loan_id).scalar() or 0
-            if total_paid == 0:
-                loan.status = "Active"
-            elif total_paid > 0 and total_paid < loan.amount:
-                loan.status = "Partially Paid"
+
+            overdue_payments = LoanPayment.query.filter(
+                LoanPayment.loan_id == loan.loan_id,
+                LoanPayment.due_date < today
+            ).count()
+
+            # Check if loan is overdue
+            if total_paid == 0 and loan.application_date < today:
+                loan.status = "Overdue"  # No payment made & due date passed
             elif total_paid >= loan.amount:
-                loan.status = "Fully Paid"
+                loan.status = "Paid"  # Fully paid
+            elif overdue_payments > 0:
+                loan.status = "Overdue"  # Has overdue payments
             else:
-                overdue_payments = LoanPayment.query.filter_by(loan_id=loan.loan_id, status='Pending').count()
-                if overdue_payments > 0:
-                    loan.status = "Overdue"
+                loan.status = "Current"  # Payments ongoing and not overdue
 
         db.session.commit()
-        
+
         return render_template(
             'superadmin/monitoring.html',
             username=user.username,
@@ -131,7 +150,7 @@ def superadmin_monitoring():
             total_amount=total_amount,
             total_applications=total_applications
         )
-    
+
     flash("Unauthorized access!", "danger")
     return redirect(url_for('login'))
 
@@ -176,6 +195,7 @@ def add_loan():
         amount = float(request.form.get('amount'))
         months_to_pay = int(request.form.get('months_to_pay'))
         monthly_payment = amount / months_to_pay
+        
 
         # Ensure application_date is properly formatted
         application_date_str = request.form.get('application_date')
@@ -189,7 +209,8 @@ def add_loan():
             amount=amount,
             application_date=application_date,
             months_to_pay=months_to_pay,
-            monthly_payment=monthly_payment
+            monthly_payment=monthly_payment,
+            
         )
         db.session.add(new_loan)
         db.session.flush()  
@@ -226,6 +247,19 @@ def loan_schedule(loan_id):
             return redirect(url_for('superadmin_monitoring'))
 
         payments = LoanPayment.query.filter_by(loan_id=loan_id).order_by(LoanPayment.due_date).all()
+
+        # Update status dynamically before rendering
+        for payment in payments:
+            due_date = payment.due_date  # No need for .date() if it's already a date object
+
+            if payment.amount_due > 0 and due_date < date.today():  # If past due date & unpaid
+                payment.status = "Overdue"
+            elif payment.amount_due == 0:  # If fully paid
+                payment.status = "Paid"
+            else:  # Otherwise, it's still active
+                payment.status = "Active"
+
+        db.session.commit()  # Save updates to the database
 
         return render_template(
             'loan_schedule.html',

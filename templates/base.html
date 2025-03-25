@@ -45,10 +45,17 @@
               <span>Dasboard</span>
             </a>
           </li>
+          
+          <li class="">
+            <a href="">
+              <i class="fa-solid fa-chart-simple"></i>
+              <span>Months Loan</span>
+            </a>
+          </li>
           <li class="{% if request.endpoint == 'superadmin_monitoring' or request.endpoint == 'loan_schedule' %}active{% endif %}">
             <a href="{{ url_for('superadmin_monitoring') }}">
               <i class="fa-solid fa-chart-simple"></i>
-              <span>Monitoring</span>
+              <span>Monthly Loans</span>
             </a>
           </li>
           <li class="{% if request.endpoint == 'superadmin_paid_loans' %}active{% endif %}">
