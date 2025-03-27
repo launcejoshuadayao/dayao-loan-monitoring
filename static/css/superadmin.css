@@ -186,7 +186,11 @@
       .card-title{
         color: #205781;
         padding-bottom: 5px;
-        font-size: 15px;
+        font-size: 20px;
+      }
+
+      .card-title strong{
+        font-size: 24px;
       }
 
       .card{
@@ -237,7 +241,7 @@
       .card-detail{
         font-size: 18px;
         color: #205781;
-        letter-spacing: 2px;
+        letter-spacing: 1.5px;
       }
 
       .light-green{

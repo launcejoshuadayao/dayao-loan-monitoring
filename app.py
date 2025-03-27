@@ -51,14 +51,14 @@ class Loan(db.Model):
 class LoanMonths(db.Model):
     __tablename__ = 'loan_months'
 
-    id = db.Column(db.Integer, primary_key=True)
+    loan_months_id = db.Column(db.Integer, primary_key=True)
     lender_name = db.Column(db.String(255), nullable=False)
-    total_loan_amount = db.Column(db.Float, nullable=False)
+    loan_amount = db.Column(db.Float, nullable=False)
     application_date = db.Column(db.Date, nullable=False)
-    months_to_pay = db.Column(db.Integer, nullable=False)
+    
     due_date = db.Column(db.Date, nullable=False)
     paid_amount = db.Column(db.Float, default=0.0)
-    status = db.Column(db.String(20), nullable=False, default='Active')
+    status = db.Column(db.String(20), nullable=False, default='Current')
 
 
 
@@ -94,21 +94,62 @@ def login():
 
 
 #superadmin --------------------------------------------------------------------------
-@app.route('/superadmin',  endpoint='superadmin_dashboard')
+@app.route('/superadmin', endpoint='superadmin_dashboard')
 def superadmin_dashboard():
     if 'role' in session and session['role'] == 'superadmin':
         user = db.session.get(User, session['user_id'])
-        loans = Loan.query.all()  
-        total_amount = sum(loan.amount for loan in loans)  # Calculate total loan amount
-        total_applications = len(loans)  # Count total applications
+
+        today = date.today()
+
+        # Fetch today's monthly payment loans
+        loans = Loan.query.filter(Loan.application_date == today).all()
         
+        # Fetch loan term records where due_date is today
+        loans_term = LoanMonths.query.filter(LoanMonths.application_date == today).all()
+
+        # Total applications and amounts
+        total_amount = sum(loan.amount for loan in loans)
+        total_applications = len(loans)
+        total_term_applications = len(loans_term)
+
+        # Count loans based on status
+        month_current_loans = Loan.query.filter(Loan.status == 'Current').count()
+        month_paid_loans = Loan.query.filter(Loan.status == 'Paid').count()
+        month_overdue_loans = Loan.query.filter(Loan.status == 'Overdue').count()
+
+        term_current_loans = LoanMonths.query.filter(LoanMonths.status == 'Current').count()
+        term_paid_loans = LoanMonths.query.filter(LoanMonths.status == 'Paid').count()
+        term_overdue_loans = LoanMonths.query.filter(LoanMonths.status == 'Overdue').count()
+
+        overall_current_loans = month_current_loans + term_current_loans
+        overall_paid_loans = month_paid_loans + term_paid_loans
+        overall_overdue_loans = month_overdue_loans + term_overdue_loans
+
         return render_template(
             'superadmin/superadmin_dashboard.html',
             username=user.username,
             loans=loans,
+            loans_term=loans_term,
             total_amount=total_amount,
-            total_applications=total_applications
+            total_applications=total_applications,
+            total_term_applications=total_term_applications,
+            total_current_loans=overall_current_loans,
+            total_paid_loans=overall_paid_loans,
+            total_overdue_loans=overall_overdue_loans
         )
+
+    flash("Unauthorized access!", "danger")
+    return redirect(url_for('login'))
+
+@app.route('/superadmin/monitoring_term', endpoint='superadmin_monitoring_terms')
+def superadmin_monitoring_terms():
+    if 'role' in session and session['role'] == 'superadmin':
+        loans_term = LoanMonths.query.all()
+        total_applications = LoanMonths.query.count()
+        user = db.session.get(User, session['user_id'])
+        
+        return render_template('/superadmin/monitoring_term.html', loans_term=loans_term, total_applications=total_applications, username=user.username)
+    
     flash("Unauthorized access!", "danger")
     return redirect(url_for('login'))
 
@@ -128,18 +169,18 @@ def superadmin_monitoring():
 
             overdue_payments = LoanPayment.query.filter(
                 LoanPayment.loan_id == loan.loan_id,
-                LoanPayment.due_date < today
+                LoanPayment.due_date < today,  # Overdue only if due date is past
+                LoanPayment.amount_paid < LoanPayment.amount_due  # Payment not met
             ).count()
 
-            # Check if loan is overdue
-            if total_paid == 0 and loan.application_date < today:
-                loan.status = "Overdue"  # No payment made & due date passed
-            elif total_paid >= loan.amount:
+            # Determine loan status
+            if total_paid >= loan.amount:
                 loan.status = "Paid"  # Fully paid
             elif overdue_payments > 0:
                 loan.status = "Overdue"  # Has overdue payments
             else:
                 loan.status = "Current"  # Payments ongoing and not overdue
+
 
         db.session.commit()
 
@@ -188,6 +229,15 @@ def superadmin_manage_users():
     flash("Unauthorized access!", "danger")
     return redirect(url_for('login'))
 
+#route to add monthly page
+@app.route('/add-monthly-loan', endpoint='add_monthly_loan')
+def add_monthly_loan():
+    if 'role' in session and session['role'] == 'superadmin':
+        return render_template('add_monthly_loan.html')
+    
+    flash("Unauthorized access!", "danger")
+    return redirect(url_for('login'))
+
 @app.route('/add-loan', methods=['POST'])
 def add_loan():
     try:
@@ -195,7 +245,6 @@ def add_loan():
         amount = float(request.form.get('amount'))
         months_to_pay = int(request.form.get('months_to_pay'))
         monthly_payment = amount / months_to_pay
-        
 
         # Ensure application_date is properly formatted
         application_date_str = request.form.get('application_date')
@@ -210,7 +259,6 @@ def add_loan():
             application_date=application_date,
             months_to_pay=months_to_pay,
             monthly_payment=monthly_payment,
-            
         )
         db.session.add(new_loan)
         db.session.flush()  
@@ -226,6 +274,43 @@ def add_loan():
                 status='Active'
             )
             db.session.add(new_payment)
+
+        db.session.commit()
+
+        return jsonify({"success": True, "message": "Loan and payments added successfully!"})
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"success": False, "message": f"Error: {str(e)}"})
+
+    #add term loan
+@app.route('/add_term_loan', methods=['POST'])
+def add_term_loan():
+    try:
+        lender_name = request.form.get('lender_name')
+        amount = float(request.form.get('amount'))
+        months_to_pay = int(request.form.get('months_to_pay'))
+        monthly_payment = amount / months_to_pay  # Auto-calculate monthly payment
+
+        # Get application date (or default to today if not provided)
+        application_date_str = request.form.get('application_date')
+        application_date = datetime.strptime(application_date_str, "%Y-%m-%d") if application_date_str else datetime.now()
+
+        # Calculate due date (last payment date)
+        due_date = application_date + relativedelta(months=months_to_pay)
+
+        # Create and save loan
+        new_loan = LoanMonths(
+            lender_name=lender_name,
+            loan_amount=amount,
+            application_date=application_date,
+            due_date=due_date,
+            paid_amount=0.0,
+            status="Current"
+        )
+        db.session.add(new_loan)
+        db.session.flush()  # Get new_loan.loan_months_id before inserting payments
+
 
         db.session.commit()
 
@@ -257,7 +342,7 @@ def loan_schedule(loan_id):
             elif payment.amount_due == 0:  # If fully paid
                 payment.status = "Paid"
             else:  # Otherwise, it's still active
-                payment.status = "Active"
+                payment.status = "Current"
 
         db.session.commit()  # Save updates to the database
 
@@ -270,6 +355,8 @@ def loan_schedule(loan_id):
 
     flash("Unauthorized access!", "danger")
     return redirect(url_for('login'))
+
+#partial payment for monthly
 
 @app.route('/partial_payment', methods=['POST'])
 def partial_payment():
@@ -291,6 +378,58 @@ def partial_payment():
     db.session.commit()
     flash("Payment recorded successfully!", "success")
     return redirect(url_for('loan_schedule', loan_id=payment.loan_id))
+
+#edit for monthly
+@app.route('/edit_monthly_loan/<int:loan_id>', methods=['GET', 'POST'], endpoint="edit_monthly_loan")
+def edit_monthly_loan(loan_id):
+    if 'role' in session and session['role'] == 'superadmin':
+        loan = db.session.get(Loan, loan_id)
+
+        if not loan:
+            flash("Loan not found!", "danger")
+            return redirect(url_for('superadmin_monitoring'))
+
+        if request.method == 'POST':
+            try:
+                # Get updated loan details
+                loan.lender_name = request.form.get('lender_name')
+                loan.amount = float(request.form.get('amount'))
+                loan.months_to_pay = int(request.form.get('months_to_pay'))
+                loan.application_date = datetime.strptime(request.form.get('application_date'), "%Y-%m-%d")
+                loan.monthly_payment = loan.amount / loan.months_to_pay
+
+                # Delete existing loan payments
+                LoanPayment.query.filter_by(loan_id=loan.loan_id).delete()
+
+                # Generate new loan payment schedule
+                due_date = loan.application_date
+                for _ in range(loan.months_to_pay):
+                    due_date += relativedelta(months=1)  # Increment by one month
+                    new_payment = LoanPayment(
+                        loan_id=loan.loan_id, 
+                        due_date=due_date,
+                        amount_due=loan.monthly_payment,
+                        status='Current'
+                    )
+                    db.session.add(new_payment)
+
+                db.session.commit()
+                flash("Loan and payment schedule updated successfully!", "success")
+                return redirect(url_for('superadmin_monitoring'))
+
+            except Exception as e:
+                db.session.rollback()
+                flash(f"Error updating loan: {str(e)}", "danger")
+
+        return render_template('edit_monthly_loan.html', loan=loan)
+
+    flash("Unauthorized access!", "danger")
+    return redirect(url_for('login'))
+
+
+
+#partial payment for term
+
 #admin --------------------------------------------------------------------------------------
 @app.route('/admin')
 def admin_dashboard():

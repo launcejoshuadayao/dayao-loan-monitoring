@@ -21,19 +21,19 @@
             <div class="card">
               <div class="card-header">
                 <div class="total">
-                  <span class="title">Total Active Loans</span>
-                  <span class="total-value">24</span>
+                  <span class="title">Total Current Loans</span>
+                  <span class="total-value">{{ total_current_loans }}</span>
                 </div>
                 <i class="fa-solid fa-chart-simple icon"></i>
               </div>
-              <span class="card-detail">Total Active Loans</span>
+              <span class="card-detail">Total Current Loans</span>
             </div>
 
             <div class="card light-green">
               <div class="card-header">
                 <div class="total">
                   <span class="title">Total Paid Loans</span>
-                  <span class="total-value">24</span>
+                  <span class="total-value">{{total_paid_loans}}</span>
                 </div>
                 <i class="fa-solid fa-calendar-check icon"></i>
               </div>
@@ -44,7 +44,7 @@
               <div class="card-header">
                 <div class="total">
                   <span class="title">Overdue Loans</span>
-                  <span class="total-value">24</span>
+                  <span class="total-value">{{total_overdue_loans}}</span>
                 </div>
                 <i class="fa-solid fa-triangle-exclamation icon"></i>
               </div>
@@ -65,7 +65,7 @@
           </div>
         </div>
 
-        <div class="table-container">
+        <!-- <div class="table-container">
           <div class="table-header">
             <h3 class ="card-title">Loan Monitoring Data</h3>
           <a href="{{ url_for('superadmin_monitoring') }}">Go to Page</a>
@@ -98,6 +98,74 @@
                 <tfoot>
                   <tr>
                     <td colspan="6" style="font-size: 16px; font-weight: 400; color: whitesmoke;">Total No. of Application: {{ total_applications }} <br> Total Amount Loaned: &#8369;{{ total_amount }}</td>
+                   
+                  </tr>
+                </tfoot>
+              </thead>
+              
+            </table>
+          </div>
+        </div> -->
+
+        <!-- Data for Loan for Monthly Payment -->
+
+        <div class="table-container">
+          <div class="table-header" >
+              <h2 class ="card-title">Today's Monthly Payment Loan</h2>
+              <!-- <button class="add-loan">Add Loan</button> -->
+              <a href="{{ url_for('superadmin_monitoring') }}">Go to Monthly Loan Page</a>
+             
+              
+          </div>
+          
+
+          
+          <div class="table" id="tables">
+            <table id="loanMonthlyTable">
+              <thead>
+                <tr>
+                  <th>Lender</th>
+                  <th>Loan Amount</th>
+                  <th>Application Date</th>
+                  <th>No. of Months to Pay</th>
+                  <th>Monthly Payment</th>
+                  <th>Loan Status</th>
+                  
+                </tr>
+                <tbody>
+                  {% for loan in loans %}
+                  <tr>
+                    <td>{{ loan.lender_name }}</td>
+                    <td>&#8369;{{ loan.amount }}</td>
+                    <td>{{ loan.application_date.strftime('%B %d, %Y') }}</td>
+                    <td>{{ loan.months_to_pay }}</td>
+                    <td>&#8369;{{ loan.monthly_payment }}</td>
+                    <td>{{ loan.status }}</td>
+                    
+                    
+                 
+                    
+                  </tr>
+                  {% endfor %}
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <td colspan="7" style="color: whitesmoke;"> <div class="pagination-container1" style="display: flex; flex-direction: row; justify-content: space-between; ">
+                      <div class="pagination-container12" style="display: flex; justify-content: start; align-items: center; font-size: 16px; font-weight: 400; ">Total No. of Application: {{ total_applications }}</div>
+                      <div class="pagination-container">
+                      <label for="rowsPerPage">Rows per page:</label>
+                      <select id="rowsPerPageMonthly" onchange="updatePagination()">
+                        <option value="3">3</option>
+    <option value="5" selected>5</option>
+    <option value="10">10</option>
+                      </select>
+                    
+                      <span id="pageInfoMonthly"></span>
+                    
+                      <button id="prevPageMonthly" onclick="changePage(-1)">&#10094;</button>
+                      <button id="nextPageMonthly" onclick="changePage(1)">&#10095;</button>
+                    </div>
+                    </div> </td>
                     <!-- <td colspan="2"><strong>Total Applications:</strong> {{ total_applications }}</td> -->
                   </tr>
                 </tfoot>
@@ -106,9 +174,161 @@
             </table>
           </div>
         </div>
+
+        <!-- Data for Loan for Months -->
+
+        <div class="table-container">
+  <div class="table-header">
+    <h2 class="card-title">Loan Data for Term Loan Payments</h2>
+    <a href="{{ url_for('superadmin_monitoring_terms') }}">Go to Loan Term Page</a>
+  </div>
+
+  <div class="table" id="tables">
+    <table id="loanTermTable">
+      <thead>
+        <tr>
+          <th>Lender</th>
+          <th>Loan Amount</th>
+          <th>Application Date</th>
+          <th>Due Date</th>
+          <th>Amount Paid</th>
+          <th>Loan Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for loan in loans_term %}
+        <tr>
+          <td>{{ loan.lender_name }}</td>
+          <td>&#8369;{{ loan.loan_amount }}</td>
+          <td>{{ loan.application_date.strftime('%B %d, %Y') }}</td>
+          
+          <td>{{ loan.due_date.strftime('%B %d, %Y') }}</td>
+          <td>&#8369;{{ loan.paid_amount }}</td>
+          <td>{{ loan.status }}</td>
+         
+        </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr>
+            <td colspan="7" style="color: whitesmoke;"> <div class="pagination-container1" style="display: flex; flex-direction: row; justify-content: space-between; ">
+              <div class="pagination-container12" style="display: flex; justify-content: start; align-items: center; font-size: 16px; font-weight: 400; ">Total No. of Application: {{ total_term_applications }}</div>
+              <div class="pagination-container">
+              <label for="rowsPerPage">Rows per page:</label>
+              <select id="rowsPerPageTerm" onchange="updatePagination()">
+                <option value="3">3</option>
+    <option value="5" selected>5</option>
+    <option value="10">10</option>
+              </select>
+            
+              <span id="pageInfoTerm"></span>
+            
+              <button id="prevPageTerm" onclick="changePage(-1)">&#10094;</button>
+              <button id="nextPageTerm" onclick="changePage(1)">&#10095;</button>
+            </div>
+            </div> </td>
+            <!-- <td colspan="2"><strong>Total Applications:</strong> {{ total_applications }}</td> -->
+          </tr>
+      </tfoot>
+    </table>
+  </div>
+</div>
+<!-- Pagination Monthly -->
+<script>
+   document.addEventListener("DOMContentLoaded", function () {
+      let currentPageMonthly = 1;
+      let rowsPerPageMonthly = parseInt(document.getElementById("rowsPerPageMonthly").value);
+      let allRowsMonthly = Array.from(document.querySelectorAll("#loanMonthlyTable tbody tr"));
+
+      function showPageMonthly(page) {
+          let start = (page - 1) * rowsPerPageMonthly;
+          let end = start + rowsPerPageMonthly;
+
+          allRowsMonthly.forEach(row => row.style.display = "none");
+          allRowsMonthly.slice(start, end).forEach(row => row.style.display = "");
+
+          document.getElementById("pageInfoMonthly").textContent =
+              `${start + 1} - ${Math.min(end, allRowsMonthly.length)} of ${allRowsMonthly.length} | Page ${page} of ${Math.ceil(allRowsMonthly.length / rowsPerPageMonthly)}`;
+
+          document.getElementById("prevPageMonthly").disabled = (page === 1);
+          document.getElementById("nextPageMonthly").disabled = (end >= allRowsMonthly.length);
+      }
+
+      function changePageMonthly(step) {
+          let newPage = currentPageMonthly + step;
+          if (newPage > 0 && newPage <= Math.ceil(allRowsMonthly.length / rowsPerPageMonthly)) {
+              currentPageMonthly = newPage;
+              showPageMonthly(currentPageMonthly);
+          }
+      }
+
+      function updatePaginationMonthly() {
+          rowsPerPageMonthly = parseInt(document.getElementById("rowsPerPageMonthly").value);
+          currentPageMonthly = 1;
+          showPageMonthly(currentPageMonthly);
+      }
+
+      document.getElementById("prevPageMonthly").addEventListener("click", () => changePageMonthly(-1));
+      document.getElementById("nextPageMonthly").addEventListener("click", () => changePageMonthly(1));
+      document.getElementById("rowsPerPageMonthly").addEventListener("change", updatePaginationMonthly);
+
+      showPageMonthly(currentPageMonthly);
+  });
+  </script>
+
+  <!-- Pagination Term -->
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+      let currentPageTerm = 1;
+      let rowsPerPageTerm = parseInt(document.getElementById("rowsPerPageTerm").value);
+      let allRowsTerm = Array.from(document.querySelectorAll("#loanTermTable tbody tr"));
+
+      function showPageTerm(page) {
+          let start = (page - 1) * rowsPerPageTerm;
+          let end = start + rowsPerPageTerm;
+
+          allRowsTerm.forEach(row => row.style.display = "none");
+          allRowsTerm.slice(start, end).forEach(row => row.style.display = "");
+
+          document.getElementById("pageInfoTerm").textContent =
+              `${start + 1} - ${Math.min(end, allRowsTerm.length)} of ${allRowsTerm.length} | Page ${page} of ${Math.ceil(allRowsTerm.length / rowsPerPageTerm)}`;
+
+          document.getElementById("prevPageTerm").disabled = (page === 1);
+          document.getElementById("nextPageTerm").disabled = (end >= allRowsTerm.length);
+      }
+
+      function changePageTerm(step) {
+          let newPage = currentPageTerm + step;
+          if (newPage > 0 && newPage <= Math.ceil(allRowsTerm.length / rowsPerPageTerm)) {
+              currentPageTerm = newPage;
+              showPageTerm(currentPageTerm);
+          }
+      }
+
+      function updatePaginationTerm() {
+          rowsPerPageTerm = parseInt(document.getElementById("rowsPerPageTerm").value);
+          currentPageTerm = 1;
+          showPageTerm(currentPageTerm);
+      }
+
+      document.getElementById("prevPageTerm").addEventListener("click", () => changePageTerm(-1));
+      document.getElementById("nextPageTerm").addEventListener("click", () => changePageTerm(1));
+      document.getElementById("rowsPerPageTerm").addEventListener("change", updatePaginationTerm);
+
+      showPageTerm(currentPageTerm);
+  });
+  </script>
+
+        
         {% endblock %}
       </div>
     </div>
+
+    <!-- pagination -->
+
+    
+
+    
 
 
     <script>

@@ -6,7 +6,7 @@
         <div class="content-header">
           <div class="header-title">
             <span>Saytan Savings and Credit Cooperative</span>
-            <h2>Loan Monitoring Table</h2>
+            <h2>Monthly Loan Monitoring Table</h2>
           </div>
           <div class="user-info">
             <h4 style="color: #205781;">{{username}}</h4>
@@ -18,7 +18,10 @@
                 <h3 class ="card-title">Loan Data for Monthly Payment</h3>
                 <!-- <button class="add-loan">Add Loan</button> -->
                  <div style="display: flex; flex-direction: row; justify-content: space-between;">
-                  <button class="add-loan" onclick="openPopup()">Add Monthly Loan</button>
+                  <!-- <button class="add-loan" onclick="openPopup()">Add Monthly Loan</button> -->
+                  <form action="{{ url_for('add_monthly_loan') }}" method="get">
+                    <button type="submit" class="add-loan">Add Monthly Loan</button>
+                </form>
                   <input type="text" name="search" id="search">
                   
                     <div class="search-field">
@@ -54,14 +57,14 @@
                       <td>&#8369;{{ loan.monthly_payment }}</td>
                       <td>{{ loan.status }}</td>
                       <td><div class="actions" style="display: flex; justify-content: start; gap: 10px; ">
-                        <a href="" title="Edit" style="text-decoration: none;">
+                        <a href="{{ url_for('edit_monthly_loan', loan_id=loan.loan_id) }}" title="Edit" style="text-decoration: none;">
                           <i class="ri-pencil-fill" style="color: brown;"></i>
                         </a>
                         <a href="{{ url_for('loan_schedule', loan_id=loan.loan_id) }}" title="View Schedule" style="text-decoration: none;">
                           <i class="ri-calendar-event-fill" style="color: orangered;"></i>
                         </a>
-                        <a href="{{ url_for('loan_schedule', loan_id=loan.loan_id) }}" title="View Schedule" style="text-decoration: none;">
-                          <i class="ri-file-excel-2-fill" style="color: green;"></i>
+                        <a href="" title="Archive" style="text-decoration: none;">
+                          <i class="ri-archive-2-fill" style="color: rgb(82, 81, 81);"></i>
                         </a>
                       </div></td>
                       

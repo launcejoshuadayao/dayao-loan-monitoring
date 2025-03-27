@@ -1,0 +1,253 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<div class="content-header">
+  <div class="header-title">
+    <span>Saytan Savings and Credit Cooperative</span>
+    <h2>Term Loan Monitoring Table</h2>
+  </div>
+  <div class="user-info">
+    <h4 style="color: #205781;">{{ username }}</h4>
+    <img src="../static/images/coop.png" alt="">
+  </div>
+</div>
+
+<div class="table-container">
+  <div class="table-monitoring-header">
+    <h3 class="card-title">Loan Data for Term Loan Payments</h3>
+    <div style="display: flex; flex-direction: row; justify-content: space-between;">
+      <button class="add-loan" onclick="openPopup()">Add Term Loan</button>
+      <input type="text" name="search" id="search">
+      <div class="search-field">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" placeholder="Search" id="search-input">
+      </div>
+    </div>
+  </div>
+
+  <div class="table" id="tables">
+    <table id="loanTable">
+      <thead>
+        <tr>
+          <th>Lender</th>
+          <th>Loan Amount</th>
+          <th>Application Date</th>
+          <th>Due Date</th>
+          <th>Amount Paid</th>
+          <th>Loan Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for loan in loans_term %}
+        <tr>
+          <td>{{ loan.lender_name }}</td>
+          <td>&#8369;{{ loan.loan_amount }}</td>
+          <td>{{ loan.application_date.strftime('%B %d, %Y') }}</td>
+          
+          <td>{{ loan.due_date.strftime('%B %d, %Y') }}</td>
+          <td>&#8369;{{ loan.paid_amount }}</td>
+          <td>{{ loan.status }}</td>
+          <td>
+            <div class="actions" style="display: flex; justify-content: start; gap: 10px;">
+              <a href="#" title="Edit" style="text-decoration: none;">
+                <i class="ri-pencil-fill" style="color: brown;"></i>
+              </a>
+              <a href="#" title="Pay Amount" style="text-decoration: none;">
+                <i class="ri-bank-card-line" style="color: rgb(22, 22, 238);"></i>
+              </a>
+              <a href="" title="Full Payment" style="text-decoration: none;">
+                <i class="ri-secure-payment-fill" style="color: green;"></i>
+              </a>
+              <a href="" title="Archive" style="text-decoration: none;">
+                <i class="ri-archive-2-fill" style="color: rgb(82, 81, 81);"></i>
+              </a>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr>
+            <td colspan="7" style="color: whitesmoke;"> <div class="pagination-container1" style="display: flex; flex-direction: row; justify-content: space-between; ">
+              <div class="pagination-container12" style="display: flex; justify-content: start; align-items: center; font-size: 16px; font-weight: 400; ">Total No. of Application: {{ total_applications }}</div>
+              <div class="pagination-container">
+              <label for="rowsPerPage">Rows per page:</label>
+              <select id="rowsPerPage" onchange="updatePagination()">
+                <option value="5" selected>5</option>
+                <!-- <option value="10">10</option>
+                <option value="15">15</option> -->
+              </select>
+            
+              <span id="pageInfo"></span>
+            
+              <button id="prevPage" onclick="changePage(-1)">&#10094;</button>
+              <button id="nextPage" onclick="changePage(1)">&#10095;</button>
+            </div>
+            </div> </td>
+            <!-- <td colspan="2"><strong>Total Applications:</strong> {{ total_applications }}</td> -->
+          </tr>
+      </tfoot>
+    </table>
+  </div>
+</div>
+
+<!-- Add Loan Popup -->
+<div id="loanPopup" class="popup" style="display: none;">
+  <div class="popup-content">
+    <span class="close" onclick="closePopup()">&times;</span>
+    <h1 class="form-title">Add Term Loan</h1>
+    <form action="{{url_for('add_term_loan')}}" method="post" id="loanForm">
+      <div class="form-group">
+        <label for="lender_name">Lender's Name</label>
+        <input type="text" id="lender_name" name="lender_name" required>
+      </div>
+      <div class="form-group">
+        <label for="amount">Loan Amount</label>
+        <input type="number" id="amount" name="amount" required>
+      </div>
+      <div class="form-group">
+        <label for="application_date">Application Date</label>
+        <input type="date" id="application_date" name="application_date" required>
+      </div>
+      <div class="form-group">
+        <label for="months_to_pay">Months to Pay</label>
+        <input type="number" id="months_to_pay" name="months_to_pay" min="1" required>
+      </div>
+      <div class="form-group">
+        <label for="due_date">Due Date</label>
+        <input type="date" id="due_date" name="due_date" min="1" readonly>
+      </div>
+      <div class="button-group">
+        <button type="submit" class="btn-submit">Add Loan</button>
+        <button type="button" class="btn-cancel" onclick="closePopup()">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+
+<script>
+  function openPopup() {
+    document.getElementById("loanPopup").style.display = "block";
+  }
+  
+  function closePopup() {
+    document.getElementById("loanPopup").style.display = "none";
+  }
+
+//   document.getElementById("loanForm").addEventListener("submit", function (event) {
+//     event.preventDefault();
+//     let formData = new FormData(this);
+//     fetch("", {
+//       method: "POST",
+//       body: formData
+//     })
+//     .then(response => response.json())
+//     .then(data => {
+//       Swal.fire({ title: data.success ? "Success!" : "Error!", text: data.message, icon: data.success ? "success" : "error" });
+//       if (data.success) location.reload();
+//     });
+//   });
+
+//   document.getElementById("application_date").value = new Date().toISOString().split('T')[0];
+</script>
+
+<!-- add term loan -->
+<script>
+    document.getElementById("months_to_pay").addEventListener("input", function () {
+      let months = parseInt(this.value);
+      let appDate = document.getElementById("application_date").value;
+  
+      if (!isNaN(months) && appDate) {
+        let applicationDate = new Date(appDate);
+        applicationDate.setMonth(applicationDate.getMonth() + months);
+  
+        // Format date to YYYY-MM-DD for input field
+        let formattedDueDate = applicationDate.toISOString().split('T')[0];
+        document.getElementById("due_date").value = formattedDueDate;
+      }
+    });
+  
+    document.getElementById("loanForm").addEventListener("submit", function (event) {
+      event.preventDefault();
+  
+      let formData = new FormData(this);
+      fetch("{{url_for('add_term_loan')}}", { 
+        method: "POST",
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        Swal.fire({ 
+          title: data.success ? "Success!" : "Error!", 
+          text: data.message, 
+          icon: data.success ? "success" : "error" 
+        }).then(() => {
+          if (data.success) location.reload();
+        });
+      });
+    });
+  </script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+const searchInput = document.getElementById("search-input");
+let currentPage = 1;
+const rowsPerPage = 5; // Fixed to 5 rows per page
+let allRows = Array.from(document.querySelectorAll("#loanTable tbody tr"));
+let filteredRows = [...allRows]; // Initially, show all rows
+
+function showPage(page) {
+  let start = (page - 1) * rowsPerPage;
+  let end = start + rowsPerPage;
+
+  // Hide all rows first
+  allRows.forEach(row => row.style.display = "none");
+
+  // Show only the filtered rows that belong to this page
+  filteredRows.slice(start, end).forEach(row => row.style.display = "");
+
+  // Update pagination info
+  document.getElementById("pageInfo").textContent =
+      `${start + 1} - ${Math.min(end, filteredRows.length)} of ${filteredRows.length} | Page ${page} of ${Math.ceil(filteredRows.length / rowsPerPage)}`;
+
+  // Enable/disable pagination buttons
+  document.getElementById("prevPage").disabled = (page === 1);
+  document.getElementById("nextPage").disabled = (end >= filteredRows.length);
+}
+
+function changePage(step) {
+  let newPage = currentPage + step;
+  if (newPage > 0 && newPage <= Math.ceil(filteredRows.length / rowsPerPage)) {
+      currentPage = newPage;
+      showPage(currentPage);
+  }
+}
+
+searchInput.addEventListener("input", function () {
+  const searchValue = this.value.toLowerCase();
+
+  // Filter rows based on search
+  filteredRows = allRows.filter(row => {
+      return Array.from(row.querySelectorAll("td")).some(cell =>
+          cell.textContent.toLowerCase().includes(searchValue)
+      );
+  });
+
+  currentPage = 1; // Reset to first page after search
+  showPage(currentPage);
+});
+
+document.getElementById("prevPage").addEventListener("click", () => changePage(-1));
+document.getElementById("nextPage").addEventListener("click", () => changePage(1));
+
+showPage(currentPage); // Initial load
+});
+    </script>
+
+{% endblock %}

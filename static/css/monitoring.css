@@ -62,6 +62,7 @@
   .form-group {
     display: flex;
     flex-direction: column;
+    padding-bottom: 8px;
   }
   
   .form-group label {

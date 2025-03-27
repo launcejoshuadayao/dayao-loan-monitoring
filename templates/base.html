@@ -46,16 +46,16 @@
             </a>
           </li>
           
-          <li class="">
-            <a href="">
-              <i class="fa-solid fa-chart-simple"></i>
-              <span>Months Loan</span>
+          <li class="{% if request.endpoint == 'superadmin_monitoring_terms' %}active{% endif %}">
+            <a href="{{ url_for('superadmin_monitoring_terms') }}">
+              <i class="fa-solid fa-hourglass-start"></i>
+              <span>Term Loans</span>
             </a>
           </li>
-          <li class="{% if request.endpoint == 'superadmin_monitoring' or request.endpoint == 'loan_schedule' %}active{% endif %}">
+          <li class="{% if request.endpoint == 'superadmin_monitoring' or request.endpoint == 'loan_schedule' or request.endpoint == 'edit_monthly_loan' or request.endpoint == 'add_monthly_loan' %}active{% endif %}">
             <a href="{{ url_for('superadmin_monitoring') }}">
-              <i class="fa-solid fa-chart-simple"></i>
-              <span>Monthly Loans</span>
+              <i class="fa-solid fa-repeat"></i>
+              <span>Installment Loans</span>
             </a>
           </li>
           <li class="{% if request.endpoint == 'superadmin_paid_loans' %}active{% endif %}">
