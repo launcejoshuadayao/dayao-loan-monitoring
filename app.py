@@ -46,6 +46,7 @@ class Loan(db.Model):
     months_to_pay = db.Column(db.Integer, nullable=False)
     monthly_payment = db.Column(db.Float, nullable=False)
     status = db.Column(db.String(20), default='Current')
+    archived = db.Column(db.Boolean, default='False')
 
 #KLoan for months class
 class LoanMonths(db.Model):
@@ -61,7 +62,7 @@ class LoanMonths(db.Model):
     status = db.Column(db.String(20), nullable=False, default='Current')
 
 
-
+#llogin
 @app.route('/login', methods=['GET', 'POST'])
 def login():
 
@@ -94,6 +95,8 @@ def login():
 
 
 #superadmin --------------------------------------------------------------------------
+
+#superadmin dashboard
 @app.route('/superadmin', endpoint='superadmin_dashboard')
 def superadmin_dashboard():
     if 'role' in session and session['role'] == 'superadmin':
@@ -105,12 +108,14 @@ def superadmin_dashboard():
         loans = Loan.query.filter(Loan.application_date == today).all()
         
         # Fetch loan term records where due_date is today
-        loans_term = LoanMonths.query.filter(LoanMonths.application_date == today).all()
+        loans_term = LoanMonths.query.filter(LoanMonths.application_date == today, Loan.archived == 'False').all()
 
         # Total applications and amounts
         total_amount = sum(loan.amount for loan in loans)
         total_applications = len(loans)
         total_term_applications = len(loans_term)
+
+        
 
         # Count loans based on status
         month_current_loans = Loan.query.filter(Loan.status == 'Current').count()
@@ -125,6 +130,8 @@ def superadmin_dashboard():
         overall_paid_loans = month_paid_loans + term_paid_loans
         overall_overdue_loans = month_overdue_loans + term_overdue_loans
 
+        total_users = User.query.filter(User.id).count()
+
         return render_template(
             'superadmin/superadmin_dashboard.html',
             username=user.username,
@@ -135,12 +142,15 @@ def superadmin_dashboard():
             total_term_applications=total_term_applications,
             total_current_loans=overall_current_loans,
             total_paid_loans=overall_paid_loans,
-            total_overdue_loans=overall_overdue_loans
+            total_overdue_loans=overall_overdue_loans,
+            total_users=total_users
         )
 
     flash("Unauthorized access!", "danger")
     return redirect(url_for('login'))
 
+
+#term loan route
 @app.route('/superadmin/monitoring_term', endpoint='superadmin_monitoring_terms')
 def superadmin_monitoring_terms():
     if 'role' in session and session['role'] == 'superadmin':
@@ -153,11 +163,13 @@ def superadmin_monitoring_terms():
     flash("Unauthorized access!", "danger")
     return redirect(url_for('login'))
 
+
+#monthly loan route
 @app.route('/superadmin/monitoring', endpoint='superadmin_monitoring')
 def superadmin_monitoring():
     if 'role' in session and session['role'] == 'superadmin':
         user = db.session.get(User, session['user_id'])
-        loans = Loan.query.all()
+        loans = Loan.query.filter(Loan.archived == False).all()
         total_amount = sum(loan.amount for loan in loans)  # Calculate total loan amount
         total_applications = len(loans)  # Count total applications
 
@@ -195,6 +207,8 @@ def superadmin_monitoring():
     flash("Unauthorized access!", "danger")
     return redirect(url_for('login'))
 
+
+#paid loans route
 @app.route('/superadmin/paid-loans')
 def superadmin_paid_loans():
     if 'role' in session and session['role'] == 'superadmin':
@@ -203,6 +217,8 @@ def superadmin_paid_loans():
     flash("Unauthorized access!", "danger")
     return redirect(url_for('login'))
 
+
+#overdue loans route
 @app.route('/superadmin/overdue-loans')
 def superadmin_overdue_loans():
     if 'role' in session and session['role'] == 'superadmin':
@@ -211,7 +227,7 @@ def superadmin_overdue_loans():
     flash("Unauthorized access!", "danger")
     return redirect(url_for('login'))
 
-
+#activity log route
 @app.route('/superadmin/activity-logs')
 def superadmin_activity_logs():
     if 'role' in session and session['role'] == 'superadmin':
@@ -220,12 +236,22 @@ def superadmin_activity_logs():
     flash("Unauthorized access!", "danger")
     return redirect(url_for('login'))
 
-
-@app.route('/superadmin/manage-users')
+#users management
+@app.route('/superadmin/manage-users', endpoint = "superadmin_manage_users")
 def superadmin_manage_users():
     if 'role' in session and session['role'] == 'superadmin':
         user = db.session.get(User, session['user_id'])
-        return render_template('superadmin/manage_users', username=user.username)
+        return render_template('superadmin/manage_users.html', username=user.username)
+    flash("Unauthorized access!", "danger")
+    return redirect(url_for('login'))
+
+#archived monthly loan
+@app.route('/superadmin/archived_monthly_loan', endpoint= "archived_monthly_loan")
+def archived_monthly_loans():
+    if 'role' in session and session['role'] == 'superadmin':
+        user = db.session.get(User, session['user_id'])
+        archived_loans = Loan.query.filter_by(archived=True).all()
+        return render_template('/superadmin/archived_monthly_loan.html', loans=archived_loans, username=user.username)
     flash("Unauthorized access!", "danger")
     return redirect(url_for('login'))
 
@@ -233,18 +259,21 @@ def superadmin_manage_users():
 @app.route('/add-monthly-loan', endpoint='add_monthly_loan')
 def add_monthly_loan():
     if 'role' in session and session['role'] == 'superadmin':
-        return render_template('add_monthly_loan.html')
+        user = db.session.get(User, session['user_id'])
+        return render_template('add_monthly_loan.html', username=user.username)
     
     flash("Unauthorized access!", "danger")
     return redirect(url_for('login'))
 
+#Monthly loan addition
 @app.route('/add-loan', methods=['POST'])
 def add_loan():
     try:
         lender_name = request.form.get('lender_name')
         amount = float(request.form.get('amount'))
         months_to_pay = int(request.form.get('months_to_pay'))
-        monthly_payment = amount / months_to_pay
+        monthly_payment = amount / months_to_pay,
+        
 
         # Ensure application_date is properly formatted
         application_date_str = request.form.get('application_date')
@@ -259,6 +288,8 @@ def add_loan():
             application_date=application_date,
             months_to_pay=months_to_pay,
             monthly_payment=monthly_payment,
+            archived=False
+            
         )
         db.session.add(new_loan)
         db.session.flush()  
@@ -271,7 +302,8 @@ def add_loan():
                 loan_id=new_loan.loan_id, 
                 due_date=due_date,
                 amount_due=monthly_payment,
-                status='Active'
+                status='Current',
+                
             )
             db.session.add(new_payment)
 
@@ -283,7 +315,7 @@ def add_loan():
         db.session.rollback()
         return jsonify({"success": False, "message": f"Error: {str(e)}"})
 
-    #add term loan
+#add term loan
 @app.route('/add_term_loan', methods=['POST'])
 def add_term_loan():
     try:
@@ -320,7 +352,7 @@ def add_term_loan():
         db.session.rollback()
         return jsonify({"success": False, "message": f"Error: {str(e)}"})   
 
-
+#monthly loan payment schedule
 @app.route('/loan_schedule/<int:loan_id>', endpoint='loan_schedule')
 def loan_schedule(loan_id):
     if 'role' in session and session['role'] == 'superadmin':
@@ -357,7 +389,6 @@ def loan_schedule(loan_id):
     return redirect(url_for('login'))
 
 #partial payment for monthly
-
 @app.route('/partial_payment', methods=['POST'])
 def partial_payment():
     loan_payment_id = request.form.get('loan_payment_id')
@@ -379,12 +410,12 @@ def partial_payment():
     flash("Payment recorded successfully!", "success")
     return redirect(url_for('loan_schedule', loan_id=payment.loan_id))
 
-#edit for monthly
+#edit loan for monthly
 @app.route('/edit_monthly_loan/<int:loan_id>', methods=['GET', 'POST'], endpoint="edit_monthly_loan")
 def edit_monthly_loan(loan_id):
     if 'role' in session and session['role'] == 'superadmin':
         loan = db.session.get(Loan, loan_id)
-
+        user = db.session.get(User, session['user_id'])
         if not loan:
             flash("Loan not found!", "danger")
             return redirect(url_for('superadmin_monitoring'))
@@ -421,12 +452,55 @@ def edit_monthly_loan(loan_id):
                 db.session.rollback()
                 flash(f"Error updating loan: {str(e)}", "danger")
 
-        return render_template('edit_monthly_loan.html', loan=loan)
+        return render_template('edit_monthly_loan.html', loan=loan, username=user.username)
 
     flash("Unauthorized access!", "danger")
     return redirect(url_for('login'))
 
+#archive monthly loan
+@app.route('/superadmin/archive_monthly_loan/<int:loan_id>', methods=['POST'])
+def archive_monthly_loan(loan_id):
+    loan = Loan.query.get(loan_id)
+    
+    if not loan:
+        return jsonify({"success": False, "message": "Loan not found"}), 404
+    
+    loan.archived = True  # Mark as archived
+    db.session.commit()
+    
+    return jsonify({"success": True, "message": "Loan archived successfully!"})
 
+#unarchive monthly loan
+@app.route('/superadmin/unarchive_monthly_loan/<int:loan_id>', methods=['POST'])
+def unarchive_monthly_loan(loan_id):
+    loan = Loan.query.get(loan_id)
+    
+    if not loan:
+        return jsonify({"success": False, "message": "Loan not found"}), 404
+    
+    loan.archived = False  # Mark as unarchived
+    db.session.commit()
+    
+    return jsonify({"success": True, "message": "Loan unarchived successfully!"})
+
+#delete monthly loan
+@app.route('/superadmin/delete_monthly_loan/<int:loan_id>', methods=['POST'])
+def delete_monthly_loan(loan_id):
+    loan = Loan.query.get(loan_id)
+
+    if not loan:
+        return jsonify({"success": False, "message": "Loan not found"}), 404
+
+    try:
+        # Delete related payments first
+        LoanPayment.query.filter_by(loan_id=loan_id).delete()
+
+        db.session.delete(loan)
+        db.session.commit()
+        return jsonify({"success": True, "message": "Loan deleted successfully!"})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"success": False, "message": f"Failed to delete loan: {str(e)}"}), 500
 
 #partial payment for term
 

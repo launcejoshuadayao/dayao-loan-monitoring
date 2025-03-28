@@ -19,9 +19,14 @@
                 <!-- <button class="add-loan">Add Loan</button> -->
                  <div style="display: flex; flex-direction: row; justify-content: space-between;">
                   <!-- <button class="add-loan" onclick="openPopup()">Add Monthly Loan</button> -->
-                  <form action="{{ url_for('add_monthly_loan') }}" method="get">
-                    <button type="submit" class="add-loan">Add Monthly Loan</button>
-                </form>
+                   <div style="display: flex; gap: 5px; align-items: end;">
+                    <form action="{{ url_for('add_monthly_loan') }}" method="get">
+                      <button type="submit" class="add-loan">Add Monthly Loan</button>
+                    </form>
+                    
+                   </div>
+                 
+                
                   <input type="text" name="search" id="search">
                   
                     <div class="search-field">
@@ -58,13 +63,13 @@
                       <td>{{ loan.status }}</td>
                       <td><div class="actions" style="display: flex; justify-content: start; gap: 10px; ">
                         <a href="{{ url_for('edit_monthly_loan', loan_id=loan.loan_id) }}" title="Edit" style="text-decoration: none;">
-                          <i class="ri-pencil-fill" style="color: brown;"></i>
+                          <i class="ri-pencil-fill" style="color: #D99152;"></i>
                         </a>
                         <a href="{{ url_for('loan_schedule', loan_id=loan.loan_id) }}" title="View Schedule" style="text-decoration: none;">
-                          <i class="ri-calendar-event-fill" style="color: orangered;"></i>
+                          <i class="ri-calendar-event-fill" style="color: #2E7A80;"></i>
                         </a>
-                        <a href="" title="Archive" style="text-decoration: none;">
-                          <i class="ri-archive-2-fill" style="color: rgb(82, 81, 81);"></i>
+                        <a href="#" onclick="confirmArchive('{{ loan.loan_id }}')" title="Archive" style="text-decoration: none;">
+                          <i class="ri-archive-2-fill" style="color: #706F6F;"></i>
                         </a>
                       </div></td>
                       
@@ -91,19 +96,15 @@
                         <button id="nextPage" onclick="changePage(1)">&#10095;</button>
                       </div>
                       </div> </td>
-                      <!-- <td colspan="2"><strong>Total Applications:</strong> {{ total_applications }}</td> -->
                     </tr>
                   </tfoot>
                 </thead>
                 
               </table>
+            </div> 
+            <div style="display: flex; justify-content: end; margin-top: 10px; ">
+              <a href="{{url_for('archived_monthly_loan')}}" style="color: rgb(99, 98, 98); font-size: 15px;">See Archived Loans</a>
             </div>
-
-            
-
-
-            
-            
           </div>
 
          
@@ -146,7 +147,6 @@
               
             </div>
           </div>
-
           <!-- pagination  and search -->
           <script>
           document.addEventListener("DOMContentLoaded", function () {
@@ -203,32 +203,42 @@
     showPage(currentPage); // Initial load
 });
           </script>
+<!-- confirm archive -------------------------------------------------------------------------------->
+          <script>
+function confirmArchive(loanId) {
+    Swal.fire({
+        title: "Archive this loan?",
+        text: "This loan will be archived and cannot be edited.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Archive"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch(`/superadmin/archive_monthly_loan/${loanId}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire("Archived!", data.message, "success")
+                    .then(() => location.reload());
+                } else {
+                    Swal.fire("Error!", data.message, "error");
+                }
+            })
+            .catch(error => {
+                Swal.fire("Error!", "Something went wrong. Please try again.", "error");
+                
+            });
+        }
+    });
+}
+          </script>
 
 <!------------------------------------------------------------------------------------------------- -->
-
-<!-- searching -->
-          <!-- <script>
-            document.addEventListener("DOMContentLoaded", function () {
-                document.getElementById("search-input").addEventListener("input", function () {
-                    const searchValue = this.value.toLowerCase();
-                    const rows = document.querySelectorAll("#tables tbody tr");
-
-                    rows.forEach(row => {
-                        const cells = row.querySelectorAll("td");
-                        let match = false;
-                        cells.forEach(cell => {
-                            if (cell.textContent.toLowerCase().includes(searchValue)) {
-                                match = true;
-                            }
-                        });
-                        row.style.display = match ? "" : "none";
-                    });
-                });
-            });
-
-        </script> -->
-              
-<!-- ------------------------------------------------------------------------------------------------------------ -->
 
 <!-- loan form popup -->
 <script>

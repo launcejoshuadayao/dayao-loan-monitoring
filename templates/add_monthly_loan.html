@@ -8,6 +8,7 @@
     <h2>Monthly Loan Monitoring Table</h2>
   </div>
   <div class="user-info">
+    <h4 style="color: #205781;">{{username}}</h4>
     <img src="{{ url_for('static', filename='images/coop.png') }}" alt="">
   </div>
 </div>
@@ -48,7 +49,7 @@
     
       <div class="button-group" style="display: flex; justify-content: end;">
         <button type="submit" class="btn-submit">Add Loan</button>
-        <button type="button" class="btn-cancel" onclick="window.history.back();">Cancel</button>
+        <button type="button" class="btn-cancel" onclick="window.history.back();">Back</button>
       </div>
     </form>
   </div>

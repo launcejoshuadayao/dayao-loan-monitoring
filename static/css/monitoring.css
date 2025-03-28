@@ -8,6 +8,16 @@
     cursor: pointer;
 }
 
+.table-monitoring-header .btn-archive{
+  margin-bottom: 10px;
+  background-color: #585e5e;
+  color: white;
+  padding: 8px 30px 8px 30px;
+  font-size: 14px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
 .add-loan:hover{
     background-color: #34767d;
 }
@@ -63,19 +73,22 @@
     display: flex;
     flex-direction: column;
     padding-bottom: 8px;
+    
   }
   
   .form-group label {
-    font-weight: 500;
-    margin-bottom: 5px;
-    
-  }
+    color: #5B6D75;  /* Muted Blue */
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 5px;  /* Space between label and input */
+    display: block;  /* Ensures proper alignment */
+}
   
   .form-group input {
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 5px;
-    font-size: 16px;
+    font-size: 15px;
     width: 100%;
   }
   
@@ -100,6 +113,7 @@
     cursor: pointer;
   }
   
+
   .button-group .btn-submit {
     background-color: #4F959D;
     color: white;
@@ -138,5 +152,24 @@
     
     cursor: pointer;
   }
+
+  .toggle-container {
+    display: flex;
+    gap: 10px;
+}
+
+.toggle-btn {
+    padding: 8px 16px;
+    border: none;
+    background-color: #f0f0f0;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.toggle-btn.active {
+    text-decoration: underline saddlebrown;
+    color: black;
+}
 
   

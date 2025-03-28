@@ -49,19 +49,19 @@
           <li class="{% if request.endpoint == 'superadmin_monitoring_terms' %}active{% endif %}">
             <a href="{{ url_for('superadmin_monitoring_terms') }}">
               <i class="fa-solid fa-hourglass-start"></i>
-              <span>Term Loans</span>
+              <span>Term</span>
             </a>
           </li>
-          <li class="{% if request.endpoint == 'superadmin_monitoring' or request.endpoint == 'loan_schedule' or request.endpoint == 'edit_monthly_loan' or request.endpoint == 'add_monthly_loan' %}active{% endif %}">
+          <li class="{% if request.endpoint == 'superadmin_monitoring' or request.endpoint == 'loan_schedule' or request.endpoint == 'edit_monthly_loan' or request.endpoint == 'add_monthly_loan'  %}active{% endif %}">
             <a href="{{ url_for('superadmin_monitoring') }}">
               <i class="fa-solid fa-repeat"></i>
-              <span>Installment Loans</span>
+              <span>Monthly</span>
             </a>
           </li>
           <li class="{% if request.endpoint == 'superadmin_paid_loans' %}active{% endif %}">
             <a href="{{ url_for('superadmin_paid_loans') }}">
               <i class="fa-solid fa-receipt"></i>
-              <span>Paid Loans</span>
+              <span>Paid</span>
             </a>
           </li>
           <li  class="{% if request.endpoint == 'superadmin_overdue_loans' %}active{% endif %}">
@@ -76,12 +76,19 @@
               <span>Logs</span>
             </a>
           </li>
+          <li class="{% if request.endpoint == 'archived_monthly_loan' %}active{% endif %}">
+            <a href="{{ url_for('archived_monthly_loan') }}">
+              <i class="fa-solid fa-box-archive"></i>
+              <span>Archives</span>
+            </a>
+          </li>
           <li class="{% if request.endpoint == 'superadmin_manage_users' %}active{% endif %}">
             <a href="{{ url_for('superadmin_manage_users') }}">
               <i class="fa-solid fa-user"></i>
               <span>Manage Users</span>
             </a>
           </li>
+          
           <li class = "logout">
             <a href="#" onclick="confirmLogout()">
               <i class="fa-solid fa-right-from-bracket"></i>
