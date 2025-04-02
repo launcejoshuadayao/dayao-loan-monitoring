@@ -92,8 +92,8 @@
                       
                         <span id="pageInfo"></span>
                       
-                        <button id="prevPage" onclick="changePage(-1)">&#10094;</button>
-                        <button id="nextPage" onclick="changePage(1)">&#10095;</button>
+                        <button id="prevPage" >&#10094;</button>
+                        <button id="nextPage">&#10095;</button>
                       </div>
                       </div> </td>
                     </tr>
@@ -147,62 +147,83 @@
               
             </div>
           </div>
+
+        
+
           <!-- pagination  and search -->
           <script>
-          document.addEventListener("DOMContentLoaded", function () {
-    const searchInput = document.getElementById("search-input");
-    let currentPage = 1;
-    const rowsPerPage = 5; // Fixed to 5 rows per page
-    let allRows = Array.from(document.querySelectorAll("#loanTable tbody tr"));
-    let filteredRows = [...allRows]; // Initially, show all rows
-
-    function showPage(page) {
-        let start = (page - 1) * rowsPerPage;
-        let end = start + rowsPerPage;
-
-        // Hide all rows first
-        allRows.forEach(row => row.style.display = "none");
-
-        // Show only the filtered rows that belong to this page
-        filteredRows.slice(start, end).forEach(row => row.style.display = "");
-
-        // Update pagination info
-        document.getElementById("pageInfo").textContent =
-            `${start + 1} - ${Math.min(end, filteredRows.length)} of ${filteredRows.length} | Page ${page} of ${Math.ceil(filteredRows.length / rowsPerPage)}`;
-
-        // Enable/disable pagination buttons
-        document.getElementById("prevPage").disabled = (page === 1);
-        document.getElementById("nextPage").disabled = (end >= filteredRows.length);
-    }
-
-    function changePage(step) {
-        let newPage = currentPage + step;
-        if (newPage > 0 && newPage <= Math.ceil(filteredRows.length / rowsPerPage)) {
-            currentPage = newPage;
-            showPage(currentPage);
-        }
-    }
-
-    searchInput.addEventListener("input", function () {
-        const searchValue = this.value.toLowerCase();
-
-        // Filter rows based on search
-        filteredRows = allRows.filter(row => {
-            return Array.from(row.querySelectorAll("td")).some(cell =>
-                cell.textContent.toLowerCase().includes(searchValue)
-            );
-        });
-
-        currentPage = 1; // Reset to first page after search
-        showPage(currentPage);
-    });
-
-    document.getElementById("prevPage").addEventListener("click", () => changePage(-1));
-    document.getElementById("nextPage").addEventListener("click", () => changePage(1));
-
-    showPage(currentPage); // Initial load
-});
-          </script>
+            document.addEventListener("DOMContentLoaded", function () {
+                let currentPage = 1;
+                const rowsPerPage = 5; // Fixed to 5 rows per page
+                const allRows = Array.from(document.querySelectorAll("#loanTable tbody tr"));
+                let filteredRows = [...allRows]; // Initially, show all rows
+            
+                function showPage(page) {
+                    let start = (page - 1) * rowsPerPage;
+                    let end = start + rowsPerPage;
+            
+                    // Hide all rows first
+                    allRows.forEach(row => row.style.display = "none");
+            
+                    // Show only the filtered rows that belong to this page
+                    filteredRows.slice(start, end).forEach(row => row.style.display = "");
+            
+                    // Update pagination info
+                    document.getElementById("pageInfo").textContent =
+                        `${start + 1} - ${Math.min(end, filteredRows.length)} of ${filteredRows.length} | Page ${page} of ${Math.ceil(filteredRows.length / rowsPerPage)}`;
+            
+                    // Enable/disable pagination buttons
+                    document.getElementById("prevPage").disabled = (page === 1);
+                    document.getElementById("nextPage").disabled = (end >= filteredRows.length);
+                }
+            
+                // Update page
+                function changePage(step) {
+                    let newPage = currentPage + step;
+                    if (newPage > 0 && newPage <= Math.ceil(filteredRows.length / rowsPerPage)) {
+                        currentPage = newPage;
+                        showPage(currentPage);
+                    }
+                }
+            
+                // Attach event listeners dynamically
+                const prevButton = document.getElementById("prevPage");
+                const nextButton = document.getElementById("nextPage");
+            
+                // Ensure the buttons exist before adding the event listeners
+                if (prevButton) {
+                    prevButton.addEventListener("click", function () {
+                        changePage(-1); // Go to previous page
+                    });
+                }
+            
+                if (nextButton) {
+                    nextButton.addEventListener("click", function () {
+                        changePage(1); // Go to next page
+                    });
+                }
+            
+                // Handle search functionality
+                const searchInput = document.getElementById("search-input");
+                if (searchInput) {
+                    searchInput.addEventListener("input", function () {
+                        const searchValue = this.value.toLowerCase();
+            
+                        // Filter rows based on search
+                        filteredRows = allRows.filter(row => {
+                            return Array.from(row.querySelectorAll("td")).some(cell =>
+                                cell.textContent.toLowerCase().includes(searchValue)
+                            );
+                        });
+            
+                        currentPage = 1; // Reset to first page after search
+                        showPage(currentPage);
+                    });
+                }
+            
+                showPage(currentPage); // Initial load
+            });
+            </script>
 <!-- confirm archive -------------------------------------------------------------------------------->
           <script>
 function confirmArchive(loanId) {

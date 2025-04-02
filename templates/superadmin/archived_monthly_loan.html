@@ -75,7 +75,7 @@
                 <tfoot>
                   <tr>
                     <td colspan="7" style="color: whitesmoke;"> <div class="pagination-container1" style="display: flex; flex-direction: row; justify-content: space-between; ">
-                      <div class="pagination-container12" style="display: flex; justify-content: start; align-items: center; font-size: 16px; font-weight: 400; ">Total No. of Application: {{ total_applications }}</div>
+                      <div class="pagination-container12" style="display: flex; justify-content: start; align-items: center; font-size: 16px; font-weight: 400; ">Total No. of Archived: {{ total_applications }}</div>
                       <div class="pagination-container">
                       <label for="rowsPerPage">Rows per page:</label>
                       <select id="rowsPerPage" onchange="updatePagination()">
@@ -86,8 +86,8 @@
                     
                       <span id="pageInfo"></span>
                     
-                      <button id="prevPage" onclick="changePage(-1)">&#10094;</button>
-                      <button id="nextPage" onclick="changePage(1)">&#10095;</button>
+                      <button id="prevPage">&#10094;</button>
+                      <button id="nextPage">&#10095;</button>
                     </div>
                     </div> </td>
                     <!-- <td colspan="2"><strong>Total Applications:</strong> {{ total_applications }}</td> -->

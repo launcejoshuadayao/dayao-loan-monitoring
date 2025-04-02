@@ -17,9 +17,11 @@
 
 <div class="table-container">
   <div class="table-monitoring-header">
-    <h3 class="card-title">Loan Data for Term Loan Payments</h3>
+    <h3 class="card-title">Loan Data for Term Loan Payment</h3>
     <div style="display: flex; flex-direction: row; justify-content: space-between;">
-      <button class="add-loan" onclick="openPopup()">Add Term Loan</button>
+      <form action="{{ url_for('add_term_loan') }}" method="get">
+        <button type="submit" class="add-loan">Add Term Loan</button>
+      </form>
       <input type="text" name="search" id="search">
       <div class="search-field">
         <i class="fa-solid fa-magnifying-glass"></i>
@@ -53,8 +55,8 @@
           <td>{{ loan.status }}</td>
           <td>
             <div class="actions" style="display: flex; justify-content: start; gap: 10px;">
-              <a href="#" title="Edit" style="text-decoration: none;">
-                <i class="ri-pencil-fill" style="color: brown;"></i>
+              <a href="{{ url_for('edit_term_loan', loan_months_id=loan.loan_months_id) }}" title="Edit" style="text-decoration: none;">
+                <i class="ri-pencil-fill" style="color: #D99152;"></i>
               </a>
               <a href="#" title="Pay Amount" style="text-decoration: none;">
                 <i class="ri-bank-card-line" style="color: rgb(22, 22, 238);"></i>
@@ -84,8 +86,8 @@
             
               <span id="pageInfo"></span>
             
-              <button id="prevPage" onclick="changePage(-1)">&#10094;</button>
-              <button id="nextPage" onclick="changePage(1)">&#10095;</button>
+              <button id="prevPage">&#10094;</button>
+              <button id="nextPage">&#10095;</button>
             </div>
             </div> </td>
             <!-- <td colspan="2"><strong>Total Applications:</strong> {{ total_applications }}</td> -->
@@ -195,58 +197,76 @@
   </script>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-const searchInput = document.getElementById("search-input");
-let currentPage = 1;
-const rowsPerPage = 5; // Fixed to 5 rows per page
-let allRows = Array.from(document.querySelectorAll("#loanTable tbody tr"));
-let filteredRows = [...allRows]; // Initially, show all rows
+   document.addEventListener("DOMContentLoaded", function () {
+    let currentPage = 1;
+    const rowsPerPage = 5; // Fixed to 5 rows per page
+    const allRows = Array.from(document.querySelectorAll("#loanTable tbody tr"));
+    let filteredRows = [...allRows]; // Initially, show all rows
 
-function showPage(page) {
-  let start = (page - 1) * rowsPerPage;
-  let end = start + rowsPerPage;
+    function showPage(page) {
+        let start = (page - 1) * rowsPerPage;
+        let end = start + rowsPerPage;
 
-  // Hide all rows first
-  allRows.forEach(row => row.style.display = "none");
+        // Hide all rows first
+        allRows.forEach(row => row.style.display = "none");
 
-  // Show only the filtered rows that belong to this page
-  filteredRows.slice(start, end).forEach(row => row.style.display = "");
+        // Show only the filtered rows that belong to this page
+        filteredRows.slice(start, end).forEach(row => row.style.display = "");
 
-  // Update pagination info
-  document.getElementById("pageInfo").textContent =
-      `${start + 1} - ${Math.min(end, filteredRows.length)} of ${filteredRows.length} | Page ${page} of ${Math.ceil(filteredRows.length / rowsPerPage)}`;
+        // Update pagination info
+        document.getElementById("pageInfo").textContent =
+            `${start + 1} - ${Math.min(end, filteredRows.length)} of ${filteredRows.length} | Page ${page} of ${Math.ceil(filteredRows.length / rowsPerPage)}`;
 
-  // Enable/disable pagination buttons
-  document.getElementById("prevPage").disabled = (page === 1);
-  document.getElementById("nextPage").disabled = (end >= filteredRows.length);
-}
+        // Enable/disable pagination buttons
+        document.getElementById("prevPage").disabled = (page === 1);
+        document.getElementById("nextPage").disabled = (end >= filteredRows.length);
+    }
 
-function changePage(step) {
-  let newPage = currentPage + step;
-  if (newPage > 0 && newPage <= Math.ceil(filteredRows.length / rowsPerPage)) {
-      currentPage = newPage;
-      showPage(currentPage);
-  }
-}
+    // Update page
+    function changePage(step) {
+        let newPage = currentPage + step;
+        if (newPage > 0 && newPage <= Math.ceil(filteredRows.length / rowsPerPage)) {
+            currentPage = newPage;
+            showPage(currentPage);
+        }
+    }
 
-searchInput.addEventListener("input", function () {
-  const searchValue = this.value.toLowerCase();
+    // Attach event listeners dynamically
+    const prevButton = document.getElementById("prevPage");
+    const nextButton = document.getElementById("nextPage");
 
-  // Filter rows based on search
-  filteredRows = allRows.filter(row => {
-      return Array.from(row.querySelectorAll("td")).some(cell =>
-          cell.textContent.toLowerCase().includes(searchValue)
-      );
-  });
+    // Ensure the buttons exist before adding the event listeners
+    if (prevButton) {
+        prevButton.addEventListener("click", function () {
+            changePage(-1); // Go to previous page
+        });
+    }
 
-  currentPage = 1; // Reset to first page after search
-  showPage(currentPage);
-});
+    if (nextButton) {
+        nextButton.addEventListener("click", function () {
+            changePage(1); // Go to next page
+        });
+    }
 
-document.getElementById("prevPage").addEventListener("click", () => changePage(-1));
-document.getElementById("nextPage").addEventListener("click", () => changePage(1));
+    // Handle search functionality
+    const searchInput = document.getElementById("search-input");
+    if (searchInput) {
+        searchInput.addEventListener("input", function () {
+            const searchValue = this.value.toLowerCase();
 
-showPage(currentPage); // Initial load
+            // Filter rows based on search
+            filteredRows = allRows.filter(row => {
+                return Array.from(row.querySelectorAll("td")).some(cell =>
+                    cell.textContent.toLowerCase().includes(searchValue)
+                );
+            });
+
+            currentPage = 1; // Reset to first page after search
+            showPage(currentPage);
+        });
+    }
+
+    showPage(currentPage); // Initial load
 });
     </script>
 

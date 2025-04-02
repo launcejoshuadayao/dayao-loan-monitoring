@@ -153,7 +153,7 @@
                     <td colspan="7" style="color: whitesmoke;"> <div class="pagination-container1" style="display: flex; flex-direction: row; justify-content: space-between; ">
                       <div class="pagination-container12" style="display: flex; justify-content: start; align-items: center; font-size: 16px; font-weight: 400; ">Total No. of Application: {{ total_applications }}</div>
                       <div class="pagination-container">
-                      <label for="rowsPerPage">Rows per page:</label>
+                      <label for="rowsPerPageMonthly">Rows per page:</label>
                       <select id="rowsPerPageMonthly" onchange="updatePagination()">
                         <option value="3">3</option>
     <option value="5" selected>5</option>
@@ -162,8 +162,8 @@
                     
                       <span id="pageInfoMonthly"></span>
                     
-                      <button id="prevPageMonthly" onclick="changePage(-1)">&#10094;</button>
-                      <button id="nextPageMonthly" onclick="changePage(1)">&#10095;</button>
+                      <button id="prevPageMonthly">&#10094;</button>
+                      <button id="nextPageMonthly">&#10095;</button>
                     </div>
                     </div> </td>
                     <!-- <td colspan="2"><strong>Total Applications:</strong> {{ total_applications }}</td> -->
@@ -214,7 +214,7 @@
             <td colspan="7" style="color: whitesmoke;"> <div class="pagination-container1" style="display: flex; flex-direction: row; justify-content: space-between; ">
               <div class="pagination-container12" style="display: flex; justify-content: start; align-items: center; font-size: 16px; font-weight: 400; ">Total No. of Application: {{ total_term_applications }}</div>
               <div class="pagination-container">
-              <label for="rowsPerPage">Rows per page:</label>
+              <label for="rowsPerPageTerm">Rows per page:</label>
               <select id="rowsPerPageTerm" onchange="updatePagination()">
                 <option value="3">3</option>
     <option value="5" selected>5</option>
@@ -223,8 +223,8 @@
             
               <span id="pageInfoTerm"></span>
             
-              <button id="prevPageTerm" onclick="changePage(-1)">&#10094;</button>
-              <button id="nextPageTerm" onclick="changePage(1)">&#10095;</button>
+              <button id="prevPageTerm">&#10094;</button>
+              <button id="nextPageTerm">&#10095;</button>
             </div>
             </div> </td>
             <!-- <td colspan="2"><strong>Total Applications:</strong> {{ total_applications }}</td> -->

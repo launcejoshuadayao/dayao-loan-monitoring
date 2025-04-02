@@ -52,7 +52,7 @@
               <span>Term</span>
             </a>
           </li>
-          <li class="{% if request.endpoint == 'superadmin_monitoring' or request.endpoint == 'loan_schedule' or request.endpoint == 'edit_monthly_loan' or request.endpoint == 'add_monthly_loan'  %}active{% endif %}">
+          <li class="{% if request.endpoint == 'superadmin_monitoring' or request.endpoint == 'loan_schedule' or request.endpoint == 'edit_monthly_loan' or request.endpoint == 'add_monthly_loan' or request.endpoint == 'monthly_loan_payment'  %}active{% endif %}">
             <a href="{{ url_for('superadmin_monitoring') }}">
               <i class="fa-solid fa-repeat"></i>
               <span>Monthly</span>
@@ -243,5 +243,7 @@
       });
     </script>
     {% endfor %} {% endif %} {% endwith %}
+
+    
   </body>
 </html>

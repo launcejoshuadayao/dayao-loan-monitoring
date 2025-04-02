@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="content-header">
+  <div class="header-title">
+    <span>Saytan Savings and Credit Cooperative</span>
+    <h2>Term Loan Monitoring Table</h2>
+  </div>
+  <div class="user-info">
+    <h4 style="color: #205781;">{{username}}</h4>
+    <img src="{{ url_for('static', filename='images/coop.png') }}" alt="">
+  </div>
+</div>
+
+<div class="table-container">
+  <div class="table-header">
+    <h3 class="card-title" style="font-size: 20px; ">Update Loan Details for: <strong>{{ loan.lender_name }}</strong></h3>
+    
+  </div>
+
+  <div class="form-container" style="padding-top: 15px;">
+    <form id="editLoanForm" action="{{ url_for('edit_term_loan', loan_months_id=loan.loan_months_id) }}" method="POST">
+        <div class="form-group">
+          <label for="lender_name">Lender's Name:</label>
+          <input type="text" id="lender_name" name="lender_name" value="{{ loan.lender_name }}" required>
+        </div>
+      
+        <div class="form-group">
+          <label for="amount">Loan Amount:</label>
+          <input type="number" id="amount" name="amount" value="{{ loan.loan_amount }}" step="0.01" required>
+        </div>
+      
+        <div class="form-group">
+          <label for="application_date">Application Date:</label>
+          <input type="date" id="application_date" name="application_date" value="{{ loan.application_date }}" required>
+        </div>
+      
+        <div class="form-group">
+          <label for="months_to_pay">Months to Pay:</label>
+          <input type="number" id="months_to_pay" name="months_to_pay" value="{{ loan.months_to_pay }}" required>
+        </div>
+      
+        <div class="form-group">
+          <label for="due_date">Due Date:</label>
+          <input type="date" id="due_date" name="due_date" value="{{ loan.due_date }}" required readonly>
+        </div>
+      
+        <div class="button-group" style="display: flex; justify-content: end;">
+          <button type="submit" class="btn-submit">Save Changes</button>
+          <button type="button" class="btn-cancel" onclick="window.history.back();">Cancel</button>
+        </div>
+      </form>
+  </div>
+  
+</div>
+
+<!-- <script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const amountInput = document.getElementById("amount");
+    const monthsInput = document.getElementById("months_to_pay");
+    const monthlyPaymentInput = document.getElementById("monthly_payment");
+
+    function updateMonthlyPayment() {
+      const amount = parseFloat(amountInput.value) || 0;
+      const months = parseInt(monthsInput.value) || 1;
+      monthlyPaymentInput.value = (amount / months).toFixed(2);
+    }
+
+    amountInput.addEventListener("input", updateMonthlyPayment);
+    monthsInput.addEventListener("input", updateMonthlyPayment);
+  });
+</script> -->
+
+<script>
+  document.getElementById("months_to_pay").addEventListener("input", function () {
+      let months = parseInt(this.value);
+      let appDate = document.getElementById("application_date").value;
+  
+      if (!isNaN(months) && appDate) {
+          let applicationDate = new Date(appDate);
+          applicationDate.setMonth(applicationDate.getMonth() + months);
+          
+          let formattedDueDate = applicationDate.toISOString().split('T')[0];
+          document.getElementById("due_date").value = formattedDueDate;
+      }
+  });
+  </script>
+
+{% endblock %}
+

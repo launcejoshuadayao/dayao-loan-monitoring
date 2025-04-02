@@ -5,7 +5,7 @@
 <div class="content-header">
   <div class="header-title">
     <span>Saytan Savings and Credit Cooperative</span>
-    <h2>Monthly Loan Monitoring Table</h2>
+    <h2>Term Loan Monitoring Table</h2>
   </div>
   <div class="user-info">
     <h4 style="color: #205781;">{{username}}</h4>
@@ -15,12 +15,11 @@
 
 <div class="table-container">
   <div class="table-header">
-    <h3 class="card-title" style="font-size: 20px; ">Add Monthly Loan</h3>
-    
+    <h3 class="card-title" style="font-size: 20px; ">Add Term Loan</h3>
   </div>
 
   <div class="form-container" style="padding-top: 15px;">
-    <form id="addLoanForm" action="{{ url_for('add_loan') }}" method="POST">
+    <form id="addLoanForm" action="{{url_for('add_loan_term')}}" method="POST">
       <div class="form-group">
         <label for="lender_name">Lender's Name:</label>
         <input type="text" id="lender_name" name="lender_name" required>
@@ -42,11 +41,10 @@
       </div>
 
       <div class="form-group">
-        <label for="monthly_payment">Monthly Payment:</label>
-        <input type="text" id="monthly_payment" name="monthly_payment" readonly>
+        <label for="due_date">Due Date:</label>
+        <input type="date" id="due_date" name="due_date"  required readonly>
       </div>
 
-    
       <div class="button-group" style="display: flex; justify-content: end;">
         <button type="submit" class="btn-submit">Add Loan</button>
         <button type="button" class="btn-cancel" onclick="window.history.back();">Back</button>
@@ -56,20 +54,31 @@
 </div>
 
 <script>
-    document.getElementById("months_to_pay").addEventListener("input", function() {
-    let amount = parseFloat(document.getElementById("amount").value) || 0;
-    let months = parseInt(this.value) || 1;
-    let monthlyPayment = amount / months;
-    document.getElementById("monthly_payment").value = monthlyPayment.toFixed(2);
-  });
+  function calculateDueDate() {
+    const applicationDate = document.getElementById("application_date").value;
+    const monthsToPay = parseInt(document.getElementById("months_to_pay").value, 10);
+
+    if (applicationDate && monthsToPay) {
+      const appDate = new Date(applicationDate);
+      appDate.setMonth(appDate.getMonth() + monthsToPay); // Add the number of months to the application date
+
+      // Set the due date input value to the calculated date
+      const dueDate = appDate.toISOString().split('T')[0]; // Format as YYYY-MM-DD
+      document.getElementById("due_date").value = dueDate;
+    }
+  }
+
+  // Attach event listeners
+  document.getElementById("application_date").addEventListener("change", calculateDueDate);
+  document.getElementById("months_to_pay").addEventListener("input", calculateDueDate);
   
   // Handle form submission
-  document.getElementById("addLoanForm").addEventListener("submit", function (event) {
+ document.getElementById("addLoanForm").addEventListener("submit", function (event) {
     event.preventDefault();
 
     let formData = new FormData(this);
 
-    fetch("{{ url_for('add_loan') }}", {
+    fetch("{{ url_for('add_loan_term') }}", {
         method: "POST",
         body: formData
     })
@@ -83,7 +92,7 @@
                 confirmButtonColor: "#3085d6",
                 confirmButtonText: "OK"
             }).then(() => {
-              window.location.href = "{{ url_for('superadmin_monitoring') }}"; // Reload page to update table
+                window.location.href = "{{ url_for('superadmin_monitoring_terms') }}"; // Reload page to reflect changes
             });
         } else {
             Swal.fire({
@@ -107,11 +116,9 @@
 });
 
 let today = new Date().toISOString().split('T')[0];
-  let appDateInput = document.getElementById("application_date");
-  appDateInput.value = today;
-  appDateInput.max = today; 
+let appDateInput = document.getElementById("application_date");
+appDateInput.value = today;
+appDateInput.max = today;
 </script>
 
-
 {% endblock %}
-
