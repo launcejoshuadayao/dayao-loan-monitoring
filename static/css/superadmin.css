@@ -191,6 +191,7 @@
 
       .card-title strong{
         font-size: 24px;
+        font-weight: 800;
       }
 
       .card{
@@ -255,6 +256,38 @@
       .light-orange{
         background-color: #fff3e0;
       }
+
+      /* tab */
+      .tab-container {
+        display: flex;
+        gap: 10px;
+        /* border-bottom: 2px solid #ccc; */
+        margin-bottom: 10px;
+    }
+    
+    .tab {
+        padding: 10px 20px;
+        cursor: pointer;
+        border: none;
+        background: none;
+        font-weight: bold;
+        transition: all 0.3s;
+        color: #205781;
+        font-size: 16px;
+    }
+    
+    .tab.active {
+        border-bottom: 3px solid #4F959D;
+        color: #205781 ;
+    }
+    
+    .tab-content {
+        display: none;
+    }
+    
+    .tab-content.show {
+        display: block;
+    }
 
 
       /*table*/

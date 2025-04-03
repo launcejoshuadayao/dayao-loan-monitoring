@@ -84,7 +84,7 @@ def login():
             session['role'] = user.role  
 
             if user.role == 'superadmin':
-                flash("Login Successful!",  "success")
+                flash(f"Welcome {username}! Login Successful!",  "success")
                 return redirect(url_for('superadmin_dashboard'))
             elif user.role == 'admin':
                 flash("Login Successful!", "success")
@@ -214,7 +214,38 @@ def superadmin_monitoring():
 def superadmin_paid_loans():
     if 'role' in session and session['role'] == 'superadmin':
         user = db.session.get(User, session['user_id'])
-        return render_template('superadmin/paid_loans.html', username=user.username)
+
+        # Fetch monthly loans with 'Paid' status
+        paid_loans = Loan.query.filter_by(status='Paid', archived=False).all()
+        total_paid_loans = len(paid_loans)
+
+        return render_template(
+            'superadmin/paid_loans.html',  
+            username=user.username,
+            paid_loans=paid_loans,
+            total_paid_loans=total_paid_loans
+        )
+
+    flash("Unauthorized access!", "danger")
+    return redirect(url_for('login'))
+
+#paid Term loan route
+@app.route('/superadmin/paid-term-loans', endpoint = 'superadmin_paid_term_loans')
+def superadmin_paid_term_loans():
+    if 'role' in session and session['role'] == 'superadmin':
+        user = db.session.get(User, session['user_id'])
+        
+        # Fetch term loans with 'Paid' status
+        paid_term_loans = LoanMonths.query.filter_by(status='Paid', archived=False).all()
+        total_paid_term_loans = len(paid_term_loans)  # Count paid term loans
+        
+        return render_template(
+            'superadmin/paid_term_loans.html',  # Create the template for displaying paid term loans
+            username=user.username,
+            paid_term_loans=paid_term_loans,
+            total_paid_term_loans=total_paid_term_loans
+        )
+    
     flash("Unauthorized access!", "danger")
     return redirect(url_for('login'))
 
@@ -271,19 +302,34 @@ def add_monthly_loan():
 @app.route('/add-loan', methods=['POST'])
 def add_loan():
     try:
+        # Validate required fields
         lender_name = request.form.get('lender_name')
-        amount = float(request.form.get('amount'))
-        months_to_pay = int(request.form.get('months_to_pay'))
-        monthly_payment = amount / months_to_pay,
-        
-
-        # Ensure application_date is properly formatted
+        amount = request.form.get('amount')
+        months_to_pay = request.form.get('months_to_pay')
         application_date_str = request.form.get('application_date')
-        if application_date_str:  # If user provides a date
-            application_date = datetime.strptime(application_date_str, "%Y-%m-%d")
-        else:  # If no date is provided, default to today
-            application_date = datetime.now()
 
+        if not lender_name or not amount or not months_to_pay or not application_date_str:
+            return jsonify({"success": False, "message": "All fields are required."})
+
+        # Convert amount and months_to_pay to valid numbers
+        try:
+            amount = float(amount)
+            months_to_pay = int(months_to_pay)
+            if amount <= 0 or months_to_pay <= 0:
+                return jsonify({"success": False, "message": "Amount and months to pay must be positive numbers."})
+        except ValueError:
+            return jsonify({"success": False, "message": "Invalid amount or months to pay."})
+
+        # Convert application date
+        try:
+            application_date = datetime.strptime(application_date_str, "%Y-%m-%d")
+        except ValueError:
+            return jsonify({"success": False, "message": "Invalid date format. Use YYYY-MM-DD."})
+
+        # Calculate monthly payment correctly
+        monthly_payment = amount / months_to_pay
+
+        # Create new loan record
         new_loan = Loan(
             lender_name=lender_name,
             amount=amount,
@@ -291,27 +337,25 @@ def add_loan():
             months_to_pay=months_to_pay,
             monthly_payment=monthly_payment,
             archived=False
-            
         )
         db.session.add(new_loan)
         db.session.flush()  
 
-        # Generate payment schedule
+        
         due_date = application_date
         for _ in range(months_to_pay):
-            due_date += relativedelta(months=1)  # Increment by one month
+            due_date += relativedelta(months=1)  
             new_payment = LoanPayment(
                 loan_id=new_loan.loan_id, 
                 due_date=due_date,
                 amount_due=monthly_payment,
                 status='Current',
-                
             )
             db.session.add(new_payment)
 
         db.session.commit()
 
-        return jsonify({"success": True, "message": "Loan and payments added successfully!"})
+        return jsonify({"success": True, "message": "Loan and payment schedule added successfully!"})
 
     except Exception as e:
         db.session.rollback()
@@ -328,7 +372,7 @@ def add_term_loan():
     return redirect(url_for('login'))
 
 #add term loan
-@app.route('/add_term_loan', methods=['POST'])
+@app.route('/add_term_loan', methods=['POST'], endpoint = "add_loan_term")
 def add_loan_term():
     try:
         # Get form data
@@ -341,12 +385,20 @@ def add_loan_term():
         if not lender_name or not loan_amount or not application_date or not months_to_pay:
             return jsonify({"success": False, "message": "All fields are required!"})
 
-        # Convert data types
-        loan_amount = float(loan_amount)
-        months_to_pay = int(months_to_pay)
+        # Convert data types safely
+        try:
+            loan_amount = float(loan_amount)
+            months_to_pay = int(months_to_pay)
+            if loan_amount <= 0 or months_to_pay <= 0:
+                return jsonify({"success": False, "message": "Loan amount and months to pay must be positive values."})
+        except ValueError:
+            return jsonify({"success": False, "message": "Invalid loan amount or months to pay. Must be numbers."})
 
         # Convert application_date to datetime object
-        app_date = datetime.strptime(application_date, "%Y-%m-%d")
+        try:
+            app_date = datetime.strptime(application_date, "%Y-%m-%d")
+        except ValueError:
+            return jsonify({"success": False, "message": "Invalid date format. Use YYYY-MM-DD."})
 
         # Calculate due date (assuming 30 days per month)
         due_date = app_date + timedelta(days=30 * months_to_pay)
@@ -356,21 +408,21 @@ def add_loan_term():
             lender_name=lender_name,
             loan_amount=loan_amount,
             application_date=app_date.date(),
-            months_to_pay = months_to_pay,
+            months_to_pay=months_to_pay,
             due_date=due_date.date(),
             status='Current',
-            archived = False
+            archived=False
         )
 
         # Save to database
         db.session.add(new_loan)
         db.session.commit()
 
-        return jsonify({"success": True, "message": "Loan added successfully!"})
+        return jsonify({"success": True, "message": "Term Loan added successfully!"})
 
     except Exception as e:
         db.session.rollback()
-        return jsonify({"success": False, "message": f"Failed to add loan. Error: {str(e)}"})
+        return jsonify({"success": False, "message": f"Failed to add term loan. Error: {str(e)}"})
 
 #monthly loan payment schedule
 @app.route('/loan_schedule/<int:loan_id>', endpoint='loan_schedule')
@@ -442,17 +494,37 @@ def partial_payment(loan_payment_id):
             flash("Loan payment record not found!", "danger")
             return redirect(url_for('superadmin_monitoring'))
 
-        amount_paid = float(request.form.get('amount_paid'))
+        # Get and validate amount_paid
+        amount_paid = request.form.get('amount_paid')
 
+        if not amount_paid:
+            flash("Payment amount is required!", "danger")
+            return redirect(url_for('monthly_loan_payment', loan_payment_id=loan_payment_id))
+
+        try:
+            amount_paid = float(amount_paid)
+            if amount_paid <= 0:
+                flash("Payment amount must be greater than zero!", "danger")
+                return redirect(url_for('monthly_loan_payment', loan_payment_id=loan_payment_id))
+        except ValueError:
+            flash("Invalid payment amount! Enter a valid number.", "danger")
+            return redirect(url_for('monthly_loan_payment', loan_payment_id=loan_payment_id))
+
+        # Check if loan is already fully paid
+        if loan_payment.amount_due == 0:
+            flash("Loan is already fully paid!", "danger")
+            return redirect(url_for('monthly_loan_payment', loan_payment_id=loan_payment_id))
+
+        # Prevent overpayment
         if amount_paid > loan_payment.amount_due:
             flash("Payment amount exceeds remaining balance!", "danger")
             return redirect(url_for('monthly_loan_payment', loan_payment_id=loan_payment_id))
 
-        # Deduct from the remaining balance
+        # Apply payment
         loan_payment.amount_due -= amount_paid
         loan_payment.amount_paid += amount_paid
 
-        # Update status
+        # Update payment status
         if loan_payment.amount_due == 0:
             loan_payment.status = "Paid"
         elif loan_payment.due_date < date.today():
@@ -475,12 +547,12 @@ def full_payment(payment_id):
     if not payment:
         return jsonify({"success": False, "message": "Payment record not found."})
 
-    remaining_balance = payment.amount_due - payment.amount_paid  # Calculate remaining amount to pay
+    remaining_balance = payment.amount_due 
 
     if remaining_balance > 0:
-        payment.amount_paid += remaining_balance  # Add remaining balance to amount paid
-        payment.amount_due = 0  # Set amount due to 0
-        payment.status = "Paid"
+        payment.amount_paid += remaining_balance  
+        payment.amount_due = 0 
+        payment.status = "Paid"  
         db.session.commit()
 
         return jsonify({"success": True, "message": "Loan fully paid successfully!"})
@@ -494,18 +566,49 @@ def edit_term_loan(loan_months_id):
 
     if not loan:
         flash("Loan not found!", "error")
-        return redirect(url_for("superadmin_monitoring_terms"))  # Redirect back if not found
+        return redirect(url_for("superadmin_monitoring_terms"))  
 
     if request.method == "POST":
-        loan.lender_name = request.form["lender_name"]
-        loan.loan_amount = request.form["amount"]
-        loan.application_date = request.form["application_date"]
-        loan.months_to_pay = request.form["months_to_pay"]
-        
-        # Calculate and update the due date
-        app_date = datetime.strptime(loan.application_date, "%Y-%m-%d")
-        loan.due_date = app_date + relativedelta(months=int(loan.months_to_pay))
+        # Get form data
+        lender_name = request.form.get("lender_name")
+        loan_amount = request.form.get("amount")
+        application_date = request.form.get("application_date")
+        months_to_pay = request.form.get("months_to_pay")
 
+        # Validate required fields
+        if not lender_name or not loan_amount or not application_date or not months_to_pay:
+            flash("All fields are required!", "error")
+            return redirect(url_for("edit_term_loan", loan_months_id=loan_months_id))
+
+        # Validate loan amount and months to pay
+        try:
+            loan_amount = float(loan_amount)
+            months_to_pay = int(months_to_pay)
+
+            if loan_amount <= 0 or months_to_pay <= 0:
+                flash("Loan amount and months to pay must be positive values.", "error")
+                return redirect(url_for("edit_term_loan", loan_months_id=loan_months_id))
+        except ValueError:
+            flash("Invalid loan amount or months to pay. Must be numbers.", "error")
+            return redirect(url_for("edit_term_loan", loan_months_id=loan_months_id))
+
+        # Validate application date format
+        try:
+            app_date = datetime.strptime(application_date, "%Y-%m-%d")
+        except ValueError:
+            flash("Invalid date format. Use YYYY-MM-DD.", "error")
+            return redirect(url_for("edit_term_loan", loan_months_id=loan_months_id))
+
+        # Update loan details
+        loan.lender_name = lender_name
+        loan.loan_amount = loan_amount
+        loan.application_date = app_date.date()
+        loan.months_to_pay = months_to_pay
+
+        # Recalculate and update the due date
+        loan.due_date = app_date + relativedelta(months=months_to_pay)
+
+        # Save changes
         db.session.commit()
         flash("Loan updated successfully!", "success")
         return redirect(url_for("superadmin_monitoring_terms"))
@@ -518,26 +621,57 @@ def edit_monthly_loan(loan_id):
     if 'role' in session and session['role'] == 'superadmin':
         loan = db.session.get(Loan, loan_id)
         user = db.session.get(User, session['user_id'])
+
         if not loan:
             flash("Loan not found!", "danger")
             return redirect(url_for('superadmin_monitoring'))
 
         if request.method == 'POST':
             try:
-                # Get updated loan details
-                loan.lender_name = request.form.get('lender_name')
-                loan.amount = float(request.form.get('amount'))
-                loan.months_to_pay = int(request.form.get('months_to_pay'))
-                loan.application_date = datetime.strptime(request.form.get('application_date'), "%Y-%m-%d")
-                loan.monthly_payment = loan.amount / loan.months_to_pay
+                # Get form data
+                lender_name = request.form.get('lender_name')
+                amount = request.form.get('amount')
+                months_to_pay = request.form.get('months_to_pay')
+                application_date = request.form.get('application_date')
+
+                # Validate required fields
+                if not lender_name or not amount or not months_to_pay or not application_date:
+                    flash("All fields are required!", "danger")
+                    return redirect(url_for('edit_monthly_loan', loan_id=loan_id))
+
+                # Validate numeric inputs
+                try:
+                    amount = float(amount)
+                    months_to_pay = int(months_to_pay)
+
+                    if amount <= 0 or months_to_pay <= 0:
+                        flash("Loan amount and months to pay must be positive values.", "danger")
+                        return redirect(url_for('edit_monthly_loan', loan_id=loan_id))
+                except ValueError:
+                    flash("Invalid amount or months to pay. Must be numbers.", "danger")
+                    return redirect(url_for('edit_monthly_loan', loan_id=loan_id))
+
+                # Validate application date format
+                try:
+                    application_date = datetime.strptime(application_date, "%Y-%m-%d")
+                except ValueError:
+                    flash("Invalid date format. Use YYYY-MM-DD.", "danger")
+                    return redirect(url_for('edit_monthly_loan', loan_id=loan_id))
+
+                # Update loan details
+                loan.lender_name = lender_name
+                loan.amount = amount
+                loan.months_to_pay = months_to_pay
+                loan.application_date = application_date
+                loan.monthly_payment = amount / months_to_pay
 
                 # Delete existing loan payments
                 LoanPayment.query.filter_by(loan_id=loan.loan_id).delete()
 
                 # Generate new loan payment schedule
-                due_date = loan.application_date
-                for _ in range(loan.months_to_pay):
-                    due_date += relativedelta(months=1)  # Increment by one month
+                due_date = application_date
+                for _ in range(months_to_pay):
+                    due_date += relativedelta(months=1) 
                     new_payment = LoanPayment(
                         loan_id=loan.loan_id, 
                         due_date=due_date,

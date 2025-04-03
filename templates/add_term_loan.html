@@ -22,27 +22,27 @@
     <form id="addLoanForm" action="{{url_for('add_loan_term')}}" method="POST">
       <div class="form-group">
         <label for="lender_name">Lender's Name:</label>
-        <input type="text" id="lender_name" name="lender_name" required>
+        <input type="text" id="lender_name" name="lender_name" >
       </div>
 
       <div class="form-group">
         <label for="amount">Loan Amount:</label>
-        <input type="number" id="amount" name="amount"  step="0.01" required>
+        <input type="number" id="amount" name="amount"  step="0.01" >
       </div>
 
       <div class="form-group">
         <label for="application_date">Application Date:</label>
-        <input type="date" id="application_date" name="application_date"  required>
+        <input type="date" id="application_date" name="application_date"  >
       </div>
 
       <div class="form-group">
         <label for="months_to_pay">Months to Pay:</label>
-        <input type="number" id="months_to_pay" name="months_to_pay" required>
+        <input type="number" id="months_to_pay" name="months_to_pay" >
       </div>
 
       <div class="form-group">
         <label for="due_date">Due Date:</label>
-        <input type="date" id="due_date" name="due_date"  required readonly>
+        <input type="date" id="due_date" name="due_date" readonly>
       </div>
 
       <div class="button-group" style="display: flex; justify-content: end;">

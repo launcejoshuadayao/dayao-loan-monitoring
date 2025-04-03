@@ -46,7 +46,7 @@
             </a>
           </li>
           
-          <li class="{% if request.endpoint == 'superadmin_monitoring_terms' %}active{% endif %}">
+          <li class="{% if request.endpoint == 'superadmin_monitoring_terms' or request.endpoint == 'add_term_loan' %}active{% endif %}">
             <a href="{{ url_for('superadmin_monitoring_terms') }}">
               <i class="fa-solid fa-hourglass-start"></i>
               <span>Term</span>
@@ -58,7 +58,7 @@
               <span>Monthly</span>
             </a>
           </li>
-          <li class="{% if request.endpoint == 'superadmin_paid_loans' %}active{% endif %}">
+          <li class="{% if request.endpoint == 'superadmin_paid_loans' or request.endpoint == 'superadmin_paid_term_loans' %}active{% endif %}">
             <a href="{{ url_for('superadmin_paid_loans') }}">
               <i class="fa-solid fa-receipt"></i>
               <span>Paid</span>

@@ -44,11 +44,11 @@
           <td>
             <div class="actions" style="display: flex; justify-content: start; gap: 10px;">
               <a href="{{url_for('monthly_loan_payment', loan_payment_id = payment.loan_payment_id)}}" title="Partial Pay" style="text-decoration: none;">
-                <i class="ri-bank-card-line" style="color: rgb(22, 22, 238);"></i>
+                <i class="ri-bank-card-line" style="color: #007bff;"></i>
               </a>
               <a href="javascript:void(0);" title="Full Payment" style="text-decoration: none;" 
               onclick="fullPayment('{{ payment.loan_payment_id }}')">
-      <i class="ri-secure-payment-fill" style="color: green;"></i>
+      <i class="ri-secure-payment-fill" style="color: #228B22;"></i>
     </a>
             </div>
           </td>

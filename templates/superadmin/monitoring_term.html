@@ -59,10 +59,10 @@
                 <i class="ri-pencil-fill" style="color: #D99152;"></i>
               </a>
               <a href="#" title="Pay Amount" style="text-decoration: none;">
-                <i class="ri-bank-card-line" style="color: rgb(22, 22, 238);"></i>
+                <i class="ri-bank-card-line" style="color: #007bff;"></i>
               </a>
               <a href="" title="Full Payment" style="text-decoration: none;">
-                <i class="ri-secure-payment-fill" style="color: green;"></i>
+                <i class="ri-secure-payment-fill" style="color: #228B22;"></i>
               </a>
               <a href="" title="Archive" style="text-decoration: none;">
                 <i class="ri-archive-2-fill" style="color: rgb(82, 81, 81);"></i>
@@ -79,9 +79,9 @@
               <div class="pagination-container">
               <label for="rowsPerPage">Rows per page:</label>
               <select id="rowsPerPage" onchange="updatePagination()">
+                <option value="3">3</option>
                 <option value="5" selected>5</option>
-                <!-- <option value="10">10</option>
-                <option value="15">15</option> -->
+                <option value="10">10</option>
               </select>
             
               <span id="pageInfo"></span>
@@ -199,7 +199,7 @@
 <script>
    document.addEventListener("DOMContentLoaded", function () {
     let currentPage = 1;
-    const rowsPerPage = 5; // Fixed to 5 rows per page
+    let rowsPerPage = parseInt(document.getElementById("rowsPerPage").value); // Get initial selected rows per page
     const allRows = Array.from(document.querySelectorAll("#loanTable tbody tr"));
     let filteredRows = [...allRows]; // Initially, show all rows
 
@@ -222,7 +222,6 @@
         document.getElementById("nextPage").disabled = (end >= filteredRows.length);
     }
 
-    // Update page
     function changePage(step) {
         let newPage = currentPage + step;
         if (newPage > 0 && newPage <= Math.ceil(filteredRows.length / rowsPerPage)) {
@@ -231,37 +230,39 @@
         }
     }
 
-    // Attach event listeners dynamically
+    function updatePagination() {
+        rowsPerPage = parseInt(document.getElementById("rowsPerPage").value);
+        currentPage = 1; // Reset to first page when rows per page changes
+        showPage(currentPage);
+    }
+
+    document.getElementById("rowsPerPage").addEventListener("change", updatePagination);
+
     const prevButton = document.getElementById("prevPage");
     const nextButton = document.getElementById("nextPage");
 
-    // Ensure the buttons exist before adding the event listeners
     if (prevButton) {
         prevButton.addEventListener("click", function () {
-            changePage(-1); // Go to previous page
+            changePage(-1);
         });
     }
 
     if (nextButton) {
         nextButton.addEventListener("click", function () {
-            changePage(1); // Go to next page
+            changePage(1);
         });
     }
 
-    // Handle search functionality
     const searchInput = document.getElementById("search-input");
     if (searchInput) {
         searchInput.addEventListener("input", function () {
             const searchValue = this.value.toLowerCase();
-
-            // Filter rows based on search
             filteredRows = allRows.filter(row => {
                 return Array.from(row.querySelectorAll("td")).some(cell =>
                     cell.textContent.toLowerCase().includes(searchValue)
                 );
             });
-
-            currentPage = 1; // Reset to first page after search
+            currentPage = 1;
             showPage(currentPage);
         });
     }

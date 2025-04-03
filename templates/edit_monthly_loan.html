@@ -23,17 +23,17 @@
     <form id="editLoanForm" action="{{ url_for('edit_monthly_loan', loan_id=loan.loan_id) }}" method="POST">
       <div class="form-group">
         <label for="lender_name">Lender's Name:</label>
-        <input type="text" id="lender_name" name="lender_name" value="{{ loan.lender_name }}" required>
+        <input type="text" id="lender_name" name="lender_name" value="{{ loan.lender_name }}" >
       </div>
 
       <div class="form-group">
         <label for="amount">Loan Amount:</label>
-        <input type="number" id="amount" name="amount" value="{{ loan.amount }}" step="0.01" required>
+        <input type="number" id="amount" name="amount" value="{{ loan.amount }}" step="0.01" >
       </div>
 
       <div class="form-group">
         <label for="months_to_pay">Months to Pay:</label>
-        <input type="number" id="months_to_pay" name="months_to_pay" value="{{ loan.months_to_pay }}" required>
+        <input type="number" id="months_to_pay" name="months_to_pay" value="{{ loan.months_to_pay }}" >
       </div>
 
       <div class="form-group">

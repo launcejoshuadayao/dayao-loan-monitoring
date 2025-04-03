@@ -4,7 +4,7 @@
         <div class="content-header">
           <div class="header-title">
             <span>Saytan Savings and Credit Cooperative</span>
-            <h2>Paid Monthly Loans</h2>
+            <h2>Paid Term Loans</h2>
           </div>
           <div class="user-info">
             <h4 style="color: #205781;">{{username}}</h4>
@@ -24,11 +24,10 @@
                     Term Payment Loan
                 </button>
             </form>
-          </div>
+          </div>  
               
               <!-- <button class="add-loan">Add Loan</button> -->
-               
-              <div style="display: flex; flex-direction: row; justify-content: flex-end; padding-bottom: 8px;" >
+               <div style="display: flex; flex-direction: row; justify-content: flex-end; padding-bottom: 8px;" >
                 <!-- <button class="add-loan" onclick="openPopup()">Add Monthly Loan</button> -->
                   <div class="search-field">
                     <i class="fa-solid fa-magnifying-glass"></i>
@@ -54,7 +53,7 @@
                   <th>Action</th>
                 </tr>
                 <tbody>
-                  {% for loan in paid_loans %}
+                  {% for loan in loans %}
                   <tr>
                     <td>{{ loan.lender_name }}</td>
                     <td>&#8369;{{ loan.amount }}</td>
@@ -63,14 +62,14 @@
                     <td>&#8369;{{ loan.monthly_payment }}</td>
                     <td>{{ loan.status }}</td>
                     <td><div class="actions" style="display: flex; justify-content: start; gap: 10px; ">
-                      <a href="{{ url_for('edit_monthly_loan', loan_id=loan.loan_id) }}" title="Edit" style="text-decoration: none;">
-                        <i class="ri-pencil-fill" style="color: #D99152;"></i>
+                      <a href="" title="Edit" style="text-decoration: none;">
+                        <i class="ri-pencil-fill" style="color: brown;"></i>
                       </a>
                       <a href="{{ url_for('loan_schedule', loan_id=loan.loan_id) }}" title="View Schedule" style="text-decoration: none;">
-                        <i class="ri-calendar-event-fill" style="color: #2E7A80;"></i>
+                        <i class="ri-calendar-event-fill" style="color: orangered;"></i>
                       </a>
-                      <a href="#" onclick="confirmArchive('{{ loan.loan_id }}')" title="Archive" style="text-decoration: none;">
-                        <i class="ri-archive-2-fill" style="color: #706F6F;"></i>
+                      <a href="{{ url_for('loan_schedule', loan_id=loan.loan_id) }}" title="View Schedule" style="text-decoration: none;">
+                        <i class="ri-file-excel-2-fill" style="color: green;"></i>
                       </a>
                     </div></td>
                     
@@ -82,7 +81,7 @@
                 <tfoot>
                   <tr>
                     <td colspan="7" style="color: whitesmoke;"> <div class="pagination-container1" style="display: flex; flex-direction: row; justify-content: space-between; ">
-                      <div class="pagination-container12" style="display: flex; justify-content: start; align-items: center; font-size: 16px; font-weight: 400; ">Total No. of Paid Loans: {{ total_paid_loans }}</div>
+                      <div class="pagination-container12" style="display: flex; justify-content: start; align-items: center; font-size: 16px; font-weight: 400; ">Total No. of Application: {{ total_applications }}</div>
                       <div class="pagination-container">
                       <label for="rowsPerPage">Rows per page:</label>
                       <select id="rowsPerPage" onchange="updatePagination()">
@@ -103,8 +102,10 @@
               </thead>
               
             </table>
-          </div>
+          </div>      
         </div>
+
+       
 
         <!-- pagination  and search -->
         <script>
