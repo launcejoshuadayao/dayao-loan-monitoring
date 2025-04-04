@@ -76,7 +76,7 @@
               <span>Logs</span>
             </a>
           </li>
-          <li class="{% if request.endpoint == 'archived_monthly_loan' %}active{% endif %}">
+          <li class="{% if request.endpoint == 'archived_monthly_loan' or request.endpoint == 'archived_term_loan' %}active{% endif %}">
             <a href="{{ url_for('archived_monthly_loan') }}">
               <i class="fa-solid fa-box-archive"></i>
               <span>Archives</span>

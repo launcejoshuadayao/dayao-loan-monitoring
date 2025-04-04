@@ -266,14 +266,19 @@
     }
     
     .tab {
-        padding: 10px 20px;
+        padding: 5px 20px;
         cursor: pointer;
         border: none;
         background: none;
         font-weight: bold;
-        transition: all 0.3s;
+        /* transition: all 0.3s; */
         color: #205781;
-        font-size: 16px;
+        font-size: 18px;
+    }
+
+    .tab:hover{
+      border-bottom: 3px solid #4F959D;
+      color: #205781 ;
     }
     
     .tab.active {

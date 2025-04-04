@@ -46,33 +46,32 @@
             <table id="loanTable">
               <thead>
                 <tr>
-                  <th>Lender</th>
-                  <th>Loan Amount</th>
-                  <th>Application Date</th>
-                  <th>No. of Months to Pay</th>
-                  <th>Monthly Payment</th>
-                  <th>Loan Status</th>
-                  <th>Action</th>
-                </tr>
+                    <th>Lender</th>
+            <th>Loan Amount</th>
+            <th>Application Date</th>
+            <th>Due Date</th>
+            <th>Amount Paid</th>
+            <th>Loan Status</th>
+            <th>Action</th>
+                  </tr>
                 <tbody>
-                  {% for loan in loans %}
+                  {% for loan in archived_loans %}
                   <tr>
                     <td>{{ loan.lender_name }}</td>
-                    <td>&#8369;{{ loan.amount }}</td>
+                    <td>&#8369;{{ loan.loan_amount }}</td>
                     <td>{{ loan.application_date.strftime('%B %d, %Y') }}</td>
-                    <td>{{ loan.months_to_pay }}</td>
-                    <td>&#8369;{{ loan.monthly_payment }}</td>
+                    
+                    <td>{{ loan.due_date.strftime('%B %d, %Y') }}</td>
+                    <td>&#8369;{{ loan.paid_amount }}</td>
                     <td>{{ loan.status }}</td>
                     <td><div class="actions" style="display: flex; justify-content: start; gap: 10px; ">
-                      <a href="#" onclick="confirmUnarchive('{{ loan.loan_id }}')" title="Unarchive" style="text-decoration: none;">
+                      <a href="#" onclick="confirmUnarchive('{{ loan.loan_months_id }}')" title="Unarchive" style="text-decoration: none;">
                         <i class="ri-inbox-unarchive-fill" style="color: rgb(107, 106, 106)"></i>
                       </a>
-                      <a href="#" onclick="confirmDelete('{{ loan.loan_id }}')" title="Delete" style="text-decoration: none;">
+                      <a href="#" onclick="confirmDelete('{{ loan.loan_months_id }}')" title="Delete" style="text-decoration: none;">
                         <i class="ri-delete-bin-fill" style="color: rgb(240, 2, 2);"></i>
                       </a>
-                      <a href="{{ url_for('loan_schedule', loan_id=loan.loan_id) }}" title="View Schedule" style="text-decoration: none;">
-                        <i class="ri-file-excel-2-fill" style="color: green;"></i>
-                      </a>
+                      
                     </div></td>
                     
                  

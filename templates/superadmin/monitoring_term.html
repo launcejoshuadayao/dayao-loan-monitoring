@@ -58,13 +58,13 @@
               <a href="{{ url_for('edit_term_loan', loan_months_id=loan.loan_months_id) }}" title="Edit" style="text-decoration: none;">
                 <i class="ri-pencil-fill" style="color: #D99152;"></i>
               </a>
-              <a href="#" title="Pay Amount" style="text-decoration: none;">
+              <a href="{{ url_for('term_payment_page', loan_months_id=loan.loan_months_id) }}" title="Pay Amount" style="text-decoration: none;">
                 <i class="ri-bank-card-line" style="color: #007bff;"></i>
               </a>
-              <a href="" title="Full Payment" style="text-decoration: none;">
+              <a href="javascript:void(0);" title="Full Payment" style="text-decoration: none;" onclick="processFullPayment('{{ loan.loan_months_id }}')">
                 <i class="ri-secure-payment-fill" style="color: #228B22;"></i>
               </a>
-              <a href="" title="Archive" style="text-decoration: none;">
+              <a href="#" title="Archive" style="text-decoration: none;" onclick="confirmArchive('{{loan.loan_months_id}}')">
                 <i class="ri-archive-2-fill" style="color: rgb(82, 81, 81);"></i>
               </a>
             </div>
@@ -131,6 +131,90 @@
   </div>
 </div>
 
+<script>
+  function processFullPayment(loanMonthsId) {
+    Swal.fire({
+      title: "Confirm Full Payment",
+      text: "Are you sure you want to fully pay this loan?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Pay Full",
+      cancelButtonText: "Cancel"
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Send POST request to process full payment
+        fetch(`/term_full_payment/${loanMonthsId}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            // If successful, show success alert and reload page
+            Swal.fire({
+              title: "Success!",
+              text: data.message,
+              icon: "success"
+            }).then(() => {
+              location.reload();  // Reload the page after confirmation
+            });
+          } else {
+            // If an error occurs, show error alert
+            Swal.fire({
+              title: "Error!",
+              text: data.message,
+              icon: "error"
+            });
+          }
+        })
+        .catch(error => {
+          // Handle any other errors
+          Swal.fire({
+            title: "Error!",
+            text: "An unexpected error occurred. Please try again.",
+            icon: "error"
+          });
+        });
+      }
+    });
+  }
+</script>
+
+<script>
+  function confirmArchive(loanId) {
+    Swal.fire({
+        title: "Archive this loan?",
+        text: "This loan will be archived and cannot be edited.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Archive"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch(`/superadmin/archive_term_loan/${loanId}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire("Archived!", data.message, "success")
+                    .then(() => location.reload());
+                } else {
+                    Swal.fire("Error!", data.message, "error");
+                }
+            })
+            .catch(error => {
+                Swal.fire("Error!", "Something went wrong. Please try again.", "error");
+                
+            });
+        }
+    });
+}
+</script>
 
 
 <script>

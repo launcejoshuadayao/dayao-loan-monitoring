@@ -155,8 +155,20 @@ def superadmin_dashboard():
 @app.route('/superadmin/monitoring_term', endpoint='superadmin_monitoring_terms')
 def superadmin_monitoring_terms():
     if 'role' in session and session['role'] == 'superadmin':
+        # Fetch all loans
         loans_term = LoanMonths.query.all()
+
+        # Loop through loans and update the status if the due date has passed
+        for loan in loans_term:
+            # Check if the loan is overdue and not paid
+            if loan.due_date < datetime.now().date() and loan.status != 'Paid':
+                loan.status = 'Overdue'  # Update status to OVERDUE
+                db.session.commit()  # Commit the changes to the database
+
+        # Get total loan applications
         total_applications = LoanMonths.query.count()
+
+        # Get the current user
         user = db.session.get(User, session['user_id'])
         
         return render_template('/superadmin/monitoring_term.html', loans_term=loans_term, total_applications=total_applications, username=user.username)
@@ -285,6 +297,17 @@ def archived_monthly_loans():
         archived_loans = Loan.query.filter_by(archived=True).all()
         total_applications = len(archived_loans)
         return render_template('/superadmin/archived_monthly_loan.html', loans=archived_loans, username=user.username, total_applications=total_applications)
+    flash("Unauthorized access!", "danger")
+    return redirect(url_for('login'))
+
+#archived term loan
+@app.route('/superadmin/archived_term_loan', endpoint = "archived_term_loan")
+def archived_term_loans():
+    if 'role' in session and session['role'] == 'superadmin':
+        user = db.session.get(User, session['user_id'])
+        archived_loans = LoanMonths.query.filter_by(archived=True).all()
+        total_term_archived= len(archived_loans)
+        return render_template('/superadmin/archived_term_loan.html' , archived_loans = archived_loans, username = user.username, total_term_archived=total_term_archived)
     flash("Unauthorized access!", "danger")
     return redirect(url_for('login'))
 
@@ -459,6 +482,83 @@ def loan_schedule(loan_id):
 
     flash("Unauthorized access!", "danger")
     return redirect(url_for('login'))
+
+#route to payment for term
+@app.route('/term_loan_payment/<int:loan_months_id>', methods = ['GET'])
+def term_payment_page(loan_months_id):
+    if 'role' in session and session['role'] == 'superadmin':
+    # Fetch the specific loan record
+        loan = LoanMonths.query.get_or_404(loan_months_id)
+        remaining_balance = loan.loan_amount - loan.paid_amount
+
+        return render_template('term_loan_payment.html', loan=loan, remaining_balance=remaining_balance)
+    
+    flash("Unauthorized access!", "danger")
+    return redirect(url_for('login'))
+
+#term partial payment
+@app.route('/term_loan_payment/<int:loan_months_id>', methods=['POST'])
+def process_term_payment(loan_months_id):
+    if 'role' in session and session['role'] == 'superadmin':
+        # Fetch the specific loan record
+        loan = LoanMonths.query.get_or_404(loan_months_id)
+
+        # Calculate the remaining balance
+        remaining_balance = loan.loan_amount - loan.paid_amount
+
+        if request.method == 'POST':
+            paid_amount = request.form['paid_amount']
+            
+            try:
+                # Ensure the paid amount is a valid number and not more than the remaining balance
+                paid_amount = float(paid_amount)
+                
+                if paid_amount <= 0:
+                    flash("Payment amount must be greater than zero.", "danger")
+                    return redirect(url_for('term_payment_page', loan_months_id=loan_months_id))
+
+                if paid_amount > remaining_balance:
+                    flash("Payment amount exceeds the remaining balance.", "danger")
+                    return redirect(url_for('term_payment_page', loan_months_id=loan_months_id))
+                
+                # Update the loan's paid amount and check if the loan is fully paid
+                loan.paid_amount += paid_amount
+                if loan.paid_amount >= loan.loan_amount:
+                    loan.status = 'Paid'  # Mark the loan as paid if the balance is cleared
+
+                # Commit the changes to the database
+                db.session.commit()
+
+                flash(f"Payment successfully processed for {loan.lender_name}", "success")
+                return redirect(url_for('superadmin_monitoring_terms'))  # Redirect to the list of paid term loans
+
+            except ValueError:
+                flash("Invalid payment amount.", "danger")
+                return redirect(url_for('term_payment_page', loan_months_id=loan_months_id))
+        
+        # Render the payment page with remaining balance
+        return render_template('term_loan_payment.html', loan=loan, remaining_balance=remaining_balance)
+    
+    flash("Unauthorized access!", "danger")
+    return redirect(url_for('login'))
+
+#term full payment
+@app.route('/term_full_payment/<int:loan_months_id>', methods=['POST'])
+def term_full_payment(loan_months_id):
+    loan = LoanMonths.query.get_or_404(loan_months_id)
+
+    # Check if the loan is already paid
+    if loan.status == 'Paid':
+        return jsonify({"success": False, "message": "This loan is already fully paid!"})
+
+    # Set the loan to fully paid
+    loan.paid_amount = loan.loan_amount  # Set paid amount equal to loan amount
+    loan.status = 'Paid'  # Mark the loan as fully paid
+    db.session.commit()  # Commit the changes to the database
+
+    return jsonify({"success": True, "message": "Loan fully paid successfully!"})
+
+
 
 #route to payment for monthly
 @app.route('/monthly_loan_payment/<int:loan_payment_id>', endpoint='monthly_loan_payment')
@@ -692,6 +792,19 @@ def edit_monthly_loan(loan_id):
 
     flash("Unauthorized access!", "danger")
     return redirect(url_for('login'))
+
+#archive term loan
+@app.route('/superadmin/archive_term_loan/<int:loan_months_id>', methods=['POST'])
+def archive_term_loan(loan_months_id):
+    loan = LoanMonths.query.get(loan_months_id)
+
+    if not loan:
+        return jsonify({"success": False, "message": "Loan not found"}), 404
+    
+    loan.archived= True
+    db.session.commit()
+    
+    return jsonify({"success": True, "message": "Loan archived successfully!"})
 
 #archive monthly loan
 @app.route('/superadmin/archive_monthly_loan/<int:loan_id>', methods=['POST'])
