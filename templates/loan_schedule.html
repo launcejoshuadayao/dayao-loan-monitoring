@@ -19,7 +19,7 @@
 <div class="table-container">
   <div class="table-header">
     <h3 class="card-title">Monthly Payment Schedule for: <strong>{{ loan.lender_name }}</strong></h3>
-    <a href="{{ url_for('superadmin_monitoring') }}">Back to Monitoring</a>
+    <a href="#" onclick="window.history.back()">Back to Monitoring</a>
   </div>
 
   <div class="table">
@@ -47,7 +47,7 @@
                 <i class="ri-bank-card-line" style="color: #007bff;"></i>
               </a>
               <a href="javascript:void(0);" title="Full Payment" style="text-decoration: none;" 
-              onclick="fullPayment('{{ payment.loan_payment_id }}')">
+              onclick="fullPayment('{{ payment.loan_payment_id }}')" {% if block_payment %}class="disabled"{% endif %}>
       <i class="ri-secure-payment-fill" style="color: #228B22;"></i>
     </a>
             </div>

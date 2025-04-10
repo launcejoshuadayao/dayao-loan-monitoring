@@ -64,7 +64,7 @@
               <span>Paid</span>
             </a>
           </li>
-          <li  class="{% if request.endpoint == 'superadmin_overdue_loans' %}active{% endif %}">
+          <li  class="{% if request.endpoint == 'superadmin_overdue_loans' or request.endpoint == 'superadmin_overdue_term_loans'%}active{% endif %}">
             <a href="{{ url_for('superadmin_overdue_loans') }}">
               <i class="fa-solid fa-circle-exclamation"></i>
               <span>Overdue</span>
@@ -82,7 +82,7 @@
               <span>Archives</span>
             </a>
           </li>
-          <li class="{% if request.endpoint == 'superadmin_manage_users' %}active{% endif %}">
+          <li class="{% if request.endpoint == 'superadmin_manage_users' or request.endpoint == 'edit_user' or request.endpoint == 'add_user' %}active{% endif %}">
             <a href="{{ url_for('superadmin_manage_users') }}">
               <i class="fa-solid fa-user"></i>
               <span>Manage Users</span>

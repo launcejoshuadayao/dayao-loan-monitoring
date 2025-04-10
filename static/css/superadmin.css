@@ -34,7 +34,7 @@
         overflow: hidden;
         color: #F6F8D5;
         transition: all 0.5s linear;
-        background-color: #205781;
+        background-color: #205781 ;
       }
 
       .sidebar:hover{
@@ -273,7 +273,7 @@
         font-weight: bold;
         /* transition: all 0.3s; */
         color: #205781;
-        font-size: 18px;
+        font-size: 16px;
     }
 
     .tab:hover{

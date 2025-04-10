@@ -29,13 +29,17 @@
   
       <div class="form-group" style="padding-top: 15px;">
         <label for="amount_paid">Enter Amount to Pay</label>
-        <input type="number" step="0.01" id="amount_paid" name="amount_paid" >
+        <input type="number" step="0.01" id="amount_paid" name="amount_paid" {% if block_payment %}disabled{% endif %}>
       </div>
-  
+      
       <div class="button-group" style="display: flex; justify-content: start;">
-        <button type="submit" class="btn-submit">Submit Payment</button>
+        <button type="submit" class="btn-submit" {% if block_payment %}disabled{% endif %}>Submit Payment</button>
         <button type="button" class="btn-cancel" onclick="window.history.back();">Back</button>
       </div>
+      
+      {% if block_payment %}
+        <p style="color: red; padding-top: 10px;"><strong>Note:</strong> You must complete previous payments before proceeding with this one.</p>
+      {% endif %}
     </form>
   </div>
 </div>

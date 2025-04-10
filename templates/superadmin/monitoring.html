@@ -44,6 +44,7 @@
               <table id="loanTable">
                 <thead>
                   <tr>
+                    <th>ID</th>
                     <th>Lender</th>
                     <th>Loan Amount</th>
                     <th>Application Date</th>
@@ -55,6 +56,7 @@
                   <tbody>
                     {% for loan in loans %}
                     <tr>
+                      <td>{{ loan.loan_id }}</td>
                       <td>{{ loan.lender_name }}</td>
                       <td>&#8369;{{ loan.amount }}</td>
                       <td>{{ loan.application_date.strftime('%B %d, %Y') }}</td>
@@ -80,7 +82,7 @@
                   </tbody>
                   <tfoot>
                     <tr>
-                      <td colspan="7" style="color: whitesmoke;"> <div class="pagination-container1" style="display: flex; flex-direction: row; justify-content: space-between; ">
+                      <td colspan="8" style="color: whitesmoke;"> <div class="pagination-container1" style="display: flex; flex-direction: row; justify-content: space-between; ">
                         <div class="pagination-container12" style="display: flex; justify-content: start; align-items: center; font-size: 16px; font-weight: 400; ">Total No. of Application: {{ total_applications }}</div>
                         <div class="pagination-container">
                         <label for="rowsPerPage">Rows per page:</label>
@@ -108,48 +110,6 @@
             </div>
           </div>
 
-         
-          <div id="loanPopup" class="popup" style="display: none;">
-            
-            <div class="popup-content">
-              <span class="close" onclick="closePopup()">&times;</span>
-              <h1 class="form-title">Add Loan</h1>
-              <form action="{{ url_for('add_loan') }}" method="post" id="loanForm"  >
-                <div class="form-group">
-                  <label for="lender_name">Lender's Name</label>
-                  <input type="text" id="lender_name" name="lender_name" required>
-                </div>
-              
-                <div class="form-group">
-                  <label for="amount">Amount to Loan</label>
-                  <input type="number" id="amount" name="amount" required>
-                </div>
-              
-                <div class="form-group">
-                  <label for="application_date">Application Date</label>
-                  <input type="date" id="application_date" name="application_date" required>
-                </div>
-              
-                <div class="form-group">
-                  <label for="months_to_pay">Months to Pay</label>
-                  <input type="number" id="months_to_pay" name="months_to_pay" min="1" required>
-                </div>
-              
-                <div class="form-group">
-                  <label for="monthly_payment">Monthly Payment</label>
-                  <input type="text" id="monthly_payment" name="monthly_payment" readonly>
-                </div>
-              
-                <div class="button-group">
-                  <button type="submit" class="btn-submit">Add Loan</button>
-                  <button type="" class="btn-cancel" onclick="closePopup()">Cancel</button>
-                </div>
-              </form>
-              
-            </div>
-          </div>
-
-        
 
           <!-- pagination  and search -->
           <script>
