@@ -31,9 +31,14 @@
                <div style="display: flex; flex-direction: row; justify-content: flex-end; padding-bottom: 8px;" >
                 <!-- <button class="add-loan" onclick="openPopup()">Add Monthly Loan</button> -->
                 
+                <div class="filter-search">
+                  <label for="date" style="display: flex; justify-content: center; flex-direction: column;">Filter Date: </label>
+                  <input type="date" id="date" class="date">
                   <div class="search-field">
+                  
                     <i class="fa-solid fa-magnifying-glass"></i>
-                  <input type="text" placeholder="Search" id="search-input">
+                    <input type="text" placeholder="Search" id="search-input">
+                  </div>
                 </div>
                </div>
              
@@ -121,25 +126,21 @@
         document.addEventListener("DOMContentLoaded", function () {
   const searchInput = document.getElementById("search-input");
   let currentPage = 1;
-  const rowsPerPage = 5; // Fixed to 5 rows per page
+  const rowsPerPage = 5; 
   let allRows = Array.from(document.querySelectorAll("#loanTable tbody tr"));
-  let filteredRows = [...allRows]; // Initially, show all rows
+  let filteredRows = [...allRows]; 
 
   function showPage(page) {
       let start = (page - 1) * rowsPerPage;
       let end = start + rowsPerPage;
 
-      // Hide all rows first
       allRows.forEach(row => row.style.display = "none");
 
-      // Show only the filtered rows that belong to this page
       filteredRows.slice(start, end).forEach(row => row.style.display = "");
 
-      // Update pagination info
       document.getElementById("pageInfo").textContent =
           `${start + 1} - ${Math.min(end, filteredRows.length)} of ${filteredRows.length} | Page ${page} of ${Math.ceil(filteredRows.length / rowsPerPage)}`;
 
-      // Enable/disable pagination buttons
       document.getElementById("prevPage").disabled = (page === 1);
       document.getElementById("nextPage").disabled = (end >= filteredRows.length);
   }
@@ -155,21 +156,20 @@
   searchInput.addEventListener("input", function () {
       const searchValue = this.value.toLowerCase();
 
-      // Filter rows based on search
       filteredRows = allRows.filter(row => {
           return Array.from(row.querySelectorAll("td")).some(cell =>
               cell.textContent.toLowerCase().includes(searchValue)
           );
       });
 
-      currentPage = 1; // Reset to first page after search
+      currentPage = 1;
       showPage(currentPage);
   });
 
   document.getElementById("prevPage").addEventListener("click", () => changePage(-1));
   document.getElementById("nextPage").addEventListener("click", () => changePage(1));
 
-  showPage(currentPage); // Initial load
+  showPage(currentPage);
 });
         </script>
 
@@ -231,7 +231,7 @@
             .then(data => {
                 if (data.success) {
                     Swal.fire("Deleted!", data.message, "success")
-                    .then(() => location.reload()); // Refresh page
+                    .then(() => location.reload());
                 } else {
                     Swal.fire("Error!", data.message, "error");
                 }

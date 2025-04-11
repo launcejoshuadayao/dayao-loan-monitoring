@@ -125,25 +125,21 @@
 <script>
    document.addEventListener("DOMContentLoaded", function () {
     let currentPage = 1;
-    let rowsPerPage = parseInt(document.getElementById("rowsPerPage").value); // Get initial selected rows per page
+    let rowsPerPage = parseInt(document.getElementById("rowsPerPage").value); 
     const allRows = Array.from(document.querySelectorAll("#loanTable tbody tr"));
-    let filteredRows = [...allRows]; // Initially, show all rows
+    let filteredRows = [...allRows]; 
 
     function showPage(page) {
         let start = (page - 1) * rowsPerPage;
         let end = start + rowsPerPage;
 
-        // Hide all rows first
         allRows.forEach(row => row.style.display = "none");
 
-        // Show only the filtered rows that belong to this page
         filteredRows.slice(start, end).forEach(row => row.style.display = "");
 
-        // Update pagination info
         document.getElementById("pageInfo").textContent =
             `${start + 1} - ${Math.min(end, filteredRows.length)} of ${filteredRows.length} | Page ${page} of ${Math.ceil(filteredRows.length / rowsPerPage)}`;
 
-        // Enable/disable pagination buttons
         document.getElementById("prevPage").disabled = (page === 1);
         document.getElementById("nextPage").disabled = (end >= filteredRows.length);
     }
@@ -158,7 +154,7 @@
 
     function updatePagination() {
         rowsPerPage = parseInt(document.getElementById("rowsPerPage").value);
-        currentPage = 1; // Reset to first page when rows per page changes
+        currentPage = 1; 
         showPage(currentPage);
     }
 
@@ -193,7 +189,7 @@
         });
     }
 
-    showPage(currentPage); // Initial load
+    showPage(currentPage);
 });
     </script>
 
