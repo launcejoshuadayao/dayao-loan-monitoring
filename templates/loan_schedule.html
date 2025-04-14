@@ -50,7 +50,41 @@
               onclick="fullPayment('{{ payment.loan_payment_id }}')" {% if block_payment %}class="disabled"{% endif %}>
       <i class="ri-secure-payment-fill" style="color: #228B22;"></i>
     </a>
+    <a href="javascript:void(0);" onclick="toggleHistory('{{ payment.loan_payment_id }}')" title="Payment History" style="text-decoration: none;">
+      <i class="ri-receipt-fill" style="color: #6a5acd"></i>
+    </a>
             </div>
+          </td>
+        </tr>
+        <tr id="history-{{ payment.loan_payment_id }}" style="display: none; background: #f9f9f9;">
+          <td colspan="5">
+            {% if payment.history %}
+            <strong>Payment History:</strong>
+            <table style="width: 100%; margin-top: 10px; border: 1px solid #ccc;">
+              <thead>
+                <tr style="background-color: #e9ecef; color: rgb(31, 31, 31);">
+                  <th>Payment ID</th>
+                  <th>Date Paid</th>
+                  <th>Amount</th>
+                  <th>Method</th>
+                  <th>Remarks</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for h in payment.history %}
+                <tr>
+                  <td>PID-{{ h.id }}</td>
+                  <td>{{ h.date_paid.strftime('%B %d, %Y') }}</td>
+                  <td>&#8369;{{ h.amount }}</td>
+                  <td>{{ h.method or '—' }}</td>
+                  <td>{{ h.remarks or '—' }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+            {% else %}
+            <em>No payment history.</em>
+            {% endif %}
           </td>
         </tr>
         {% endfor %}
@@ -58,6 +92,15 @@
     </table>
   </div>
 </div>
+
+<script>
+  function toggleHistory(paymentId) {
+    const row = document.getElementById('history-' + paymentId);
+    if (row) {
+      row.style.display = row.style.display === "none" ? "" : "none";
+    }
+  }
+</script> 
 
 <script>
   function fullPayment(paymentId) {

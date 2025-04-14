@@ -31,7 +31,7 @@
               <div style="display: flex; flex-direction: row; justify-content: flex-end; padding-bottom: 8px;" >
                 <!-- <button class="add-loan" onclick="openPopup()">Add Monthly Loan</button> -->
                 <div class="filter-search">
-                  <label for="date" style="display: flex; justify-content: center; flex-direction: column;">Filter Date: </label>
+                  <label for="date" style="display: flex; justify-content: end; flex-direction: column;">Filter Date: </label>
                   <input type="date" id="date" class="date">
                   <div class="search-field">
                   
@@ -64,7 +64,9 @@
                     <td>{{ loan.lender_name }}</td>
                     <td>&#8369;{{ loan.amount }}</td>
                     <td>{{ loan.application_date.strftime('%B %d, %Y') }}</td>
-                    <td>{{ loan.months_to_pay }}</td>
+                    <td>
+                      {{ loan.months_to_pay }} {% if loan.months_to_pay == 1 %}month{% else %}months{% endif %}
+                    </td>
                     <td>&#8369;{{ loan.monthly_payment }}</td>
                     <td>{{ loan.status }}</td>
                     <td><div class="actions" style="display: flex; justify-content: start; gap: 10px; ">
@@ -115,74 +117,90 @@
         <!-- pagination  and search -->
         <script>
           document.addEventListener("DOMContentLoaded", function () {
-   let currentPage = 1;
-   let rowsPerPage = parseInt(document.getElementById("rowsPerPage").value);
-   const allRows = Array.from(document.querySelectorAll("#loanTable tbody tr"));
-   let filteredRows = [...allRows]; // Initially, show all rows
-
-   function showPage(page) {
-       let start = (page - 1) * rowsPerPage;
-       let end = start + rowsPerPage;
-
-       // Hide all rows first
-       allRows.forEach(row => row.style.display = "none");
-
-       // Show only the filtered rows that belong to this page
-       filteredRows.slice(start, end).forEach(row => row.style.display = "");
-
-       // Update pagination info
-       document.getElementById("pageInfo").textContent =
-           `${start + 1} - ${Math.min(end, filteredRows.length)} of ${filteredRows.length} | Page ${page} of ${Math.ceil(filteredRows.length / rowsPerPage)}`;
-
-       // Enable/disable pagination buttons
-       document.getElementById("prevPage").disabled = (page === 1);
-       document.getElementById("nextPage").disabled = (end >= filteredRows.length);
-   }
-
-   function changePage(step) {
-       let newPage = currentPage + step;
-       if (newPage > 0 && newPage <= Math.ceil(filteredRows.length / rowsPerPage)) {
-           currentPage = newPage;
-           showPage(currentPage);
-       }
-   }
-
-   function updatePagination() {
-       rowsPerPage = parseInt(document.getElementById("rowsPerPage").value);
-       currentPage = 1; // Reset to first page after changing rows per page
-       showPage(currentPage);
-   }
-
-   // Attach event listeners dynamically
-   document.getElementById("prevPage").addEventListener("click", function () {
-       changePage(-1);
-   });
-
-   document.getElementById("nextPage").addEventListener("click", function () {
-       changePage(1);
-   });
-
-   document.getElementById("rowsPerPage").addEventListener("change", updatePagination);
-
-   // Handle search functionality
-   document.getElementById("search-input").addEventListener("input", function () {
-       const searchValue = this.value.toLowerCase();
-
-       // Filter rows based on search
-       filteredRows = allRows.filter(row => {
-           return Array.from(row.querySelectorAll("td")).some(cell =>
-               cell.textContent.toLowerCase().includes(searchValue)
-           );
-       });
-
-       currentPage = 1; // Reset to first page after search
-       showPage(currentPage);
-   });
-
-   showPage(currentPage); // Initial load
-});
-
-           </script>
+              let currentPage = 1;
+              let rowsPerPage = parseInt(document.getElementById("rowsPerPage").value); 
+              const allRows = Array.from(document.querySelectorAll("#loanTable tbody tr"));
+              let filteredRows = [...allRows];
+          
+              const searchInput = document.getElementById("search-input");
+              const dateInput = document.getElementById("date");
+              const prevButton = document.getElementById("prevPage");
+              const nextButton = document.getElementById("nextPage");
+          
+              function applyFilters() {
+                  const searchValue = searchInput?.value.toLowerCase() || "";
+                  const selectedDate = dateInput?.value ? new Date(dateInput.value).toDateString() : "";
+          
+                  filteredRows = allRows.filter(row => {
+                      const matchesSearch = Array.from(row.querySelectorAll("td")).some(cell =>
+                          cell.textContent.toLowerCase().includes(searchValue)
+                      );
+          
+                      const appDate = new Date(row.cells[2].textContent).toDateString();
+                      const dueDate = new Date(row.cells[3].textContent).toDateString();
+          
+                      const matchesDate = !selectedDate || appDate === selectedDate || dueDate === selectedDate;
+          
+                      return matchesSearch && matchesDate;
+                  });
+          
+                  currentPage = 1;
+                  showPage(currentPage);
+              }
+          
+              function showPage(page) {
+                  let start = (page - 1) * rowsPerPage;
+                  let end = start + rowsPerPage;
+          
+                  allRows.forEach(row => row.style.display = "none");
+                  filteredRows.slice(start, end).forEach(row => row.style.display = "");
+          
+                  document.getElementById("pageInfo").textContent =
+                      `${filteredRows.length ? start + 1 : 0} - ${Math.min(end, filteredRows.length)} of ${filteredRows.length} | Page ${filteredRows.length ? page : 0} of ${Math.ceil(filteredRows.length / rowsPerPage)}`;
+          
+                  prevButton.disabled = (page === 1);
+                  nextButton.disabled = (end >= filteredRows.length);
+              }
+          
+              function changePage(step) {
+                  let newPage = currentPage + step;
+                  if (newPage > 0 && newPage <= Math.ceil(filteredRows.length / rowsPerPage)) {
+                      currentPage = newPage;
+                      showPage(currentPage);
+                  }
+              }
+          
+              function updatePagination() {
+                  rowsPerPage = parseInt(document.getElementById("rowsPerPage").value);
+                  currentPage = 1;
+                  showPage(currentPage);
+              }
+          
+              if (searchInput) {
+                  searchInput.addEventListener("input", applyFilters);
+              }
+          
+              if (dateInput) {
+                  dateInput.addEventListener("change", applyFilters);
+              }
+          
+              if (prevButton) {
+                  prevButton.addEventListener("click", function () {
+                      changePage(-1);
+                  });
+              }
+          
+              if (nextButton) {
+                  nextButton.addEventListener("click", function () {
+                      changePage(1);
+                  });
+              }
+          
+              document.getElementById("rowsPerPage").addEventListener("change", updatePagination);
+          
+              applyFilters(); // Initial render
+          });
+          </script>
 
 <script>
   function confirmArchive(loanId) {

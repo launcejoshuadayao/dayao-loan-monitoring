@@ -62,6 +62,18 @@ class LoanMonths(db.Model):
     status = db.Column(db.String(20), nullable=False, default='Current')
     archived = db.Column(db.Boolean, default=False)
 
+#Monthly Loan Payment History
+class PaymentHistory(db.Model):
+    __tablename__ = 'months_payment_history'
+
+    id = db.Column(db.Integer, primary_key=True)
+    loan_payment_id = db.Column(db.Integer, db.ForeignKey('loan_payments.loan_payment_id'), nullable=False)
+    date_paid = db.Column(db.Date, nullable=False, default=date.today)
+    amount = db.Column(db.Float, nullable=False)    
+    remarks = db.Column(db.String(100))  # Optional
+
+    loan_payment = db.relationship('LoanPayment', backref=db.backref('history', lazy=True))
+
 
 #llogin
 @app.route('/login', methods=['GET', 'POST'])
@@ -718,6 +730,14 @@ def partial_payment(loan_payment_id):
         loan_payment.amount_due -= amount_paid
         loan_payment.amount_paid += amount_paid
 
+        history = PaymentHistory(
+        loan_payment_id=loan_payment_id,
+        amount=amount_paid,
+        date_paid=date.today(),
+        remarks="Partial Payment"
+        )
+        db.session.add(history)
+
         if loan_payment.amount_due == 0:
             loan_payment.status = "Paid"
         elif loan_payment.due_date < date.today():
@@ -768,6 +788,14 @@ def full_payment(payment_id):
         payment.amount_paid += remaining_balance  
         payment.amount_due = 0 
         payment.status = "Paid"
+
+        history = PaymentHistory(
+        loan_payment_id=payment_id,
+        amount=remaining_balance,
+        date_paid=date.today(),
+        remarks="Full Payment"
+        )
+        db.session.add(history)
 
         # Update the parent loan's status
         loan = db.session.get(Loan, payment.loan_id)
