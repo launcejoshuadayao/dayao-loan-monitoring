@@ -24,8 +24,10 @@
       
       <input type="hidden" id="loan_payment_id" name="loan_payment_id">
     
-      <p style="padding-bottom: 10px;"><strong>Due Date:</strong>  {{ loan_payment.due_date.strftime('%B %d, %Y') }}</p>
-      <p><strong>Remaining Balance:</strong> &#8369;{{ loan_payment.amount_due }}</p>
+      <p style="padding-bottom: 5px;"><strong>Due Date:</strong>  {{ loan_payment.due_date.strftime('%B %d, %Y') }}</p>
+      <!-- <p style="padding-bottom: 5px;"><strong>Loan Balance:</strong> &#8369;{{ loan.amount }}</p> -->
+      <p style="padding-bottom: 5px;"><strong>Remaining Balance:</strong> &#8369;{{ loan_payment.amount_due }}</p>
+      <p style="padding-bottom: 5px;"><strong>Amount Paid:</strong> &#8369;{{ loan_payment.amount_paid }}</p>
   
       <div class="form-group" style="padding-top: 15px;">
         <label for="amount_paid">Enter Amount to Pay</label>
