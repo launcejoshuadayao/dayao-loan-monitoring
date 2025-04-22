@@ -109,17 +109,8 @@
               
             </table>
           </div>
-
-          <div style="display: flex; justify-content: end; margin-top: 10px; ">
-            <a href="{{ url_for('superadmin_monitoring') }}" style="color: gray; font-size: 14px;">Back to Monitoring</a>
-          </div>
-          
-
-          
           
         </div>
-
-       
 
         <!-- pagination  and search -->
         <script>
@@ -205,7 +196,7 @@
           
               document.getElementById("rowsPerPage").addEventListener("change", updatePagination);
           
-              applyFilters(); // Initial render
+              applyFilters(); 
           });
           </script>
 
@@ -292,10 +283,6 @@ function closePopup() {
   document.getElementById("loanPopup").style.display = "none";
 }
 
-// let today = new Date().toISOString().split('T')[0];
-// let appDateInput = document.getElementById("application_date");
-// appDateInput.value = today;
-// appDateInput.max = today; 
 </script>
 
 <!-- ------------------------------------------------------------------------------------------- -->

@@ -74,6 +74,16 @@ class PaymentHistory(db.Model):
 
     loan_payment = db.relationship('LoanPayment', backref=db.backref('history', lazy=True))
 
+#Term Loan Payment History
+class TermPaymentHistory(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    loan_months_id = db.Column(db.Integer, db.ForeignKey('loan_months.loan_months_id'))  # ✅ correct column
+    date_paid = db.Column(db.DateTime, default=datetime.utcnow)
+    amount = db.Column(db.Float)
+    remarks = db.Column(db.String(255), nullable=True)
+
+    loan = db.relationship('LoanMonths', backref=db.backref('payment_histories', lazy=True))
+
 
 #llogin
 @app.route('/login', methods=['GET', 'POST'])
@@ -117,20 +127,14 @@ def superadmin_dashboard():
 
         today = date.today()
 
-        # Fetch today's monthly payment loans
         loans = Loan.query.filter(Loan.application_date == today).all()
-        
-        # Fetch loan term records where due_date is today
+    
         loans_term = LoanMonths.query.filter(LoanMonths.application_date == today, Loan.archived == 'False').all()
 
-        # Total applications and amounts
         total_amount = sum(loan.amount for loan in loans)
         total_applications = len(loans)
         total_term_applications = len(loans_term)
 
-        
-
-        # Count loans based on status
         month_current_loans = Loan.query.filter(Loan.status == 'Current', Loan.archived== 'False').count()
         month_paid_loans = Loan.query.filter(Loan.status == 'Paid', Loan.archived== 'False').count()
         month_overdue_loans = Loan.query.filter(Loan.status == 'Overdue', Loan.archived== 'False').count()
@@ -167,22 +171,20 @@ def superadmin_dashboard():
 @app.route('/superadmin/monitoring_term', endpoint='superadmin_monitoring_terms')
 def superadmin_monitoring_terms():
     if 'role' in session and session['role'] == 'superadmin':
-        # Fetch all loans
-        loans_term = LoanMonths.query.filter(LoanMonths.status=='Current', LoanMonths.archived=='False').all()
+        loans_term = LoanMonths.query.filter(LoanMonths.status == 'Current', LoanMonths.archived == False).all()
 
-        # Loop through loans and update the status if the due date has passed
         for loan in loans_term:
-            # Check if the loan is overdue and not paid
+            loan.payment_history = TermPaymentHistory.query.filter_by(loan_months_id=loan.loan_months_id).all()
+
+        for loan in loans_term:
             if loan.due_date < datetime.now().date() and loan.status != 'Paid':
-                loan.status = 'Overdue'  # Update status to OVERDUE
-                db.session.commit()  # Commit the changes to the database
+                loan.status = 'Overdue'
+                db.session.commit()
 
-        # Get total loan applications
-        total_applications = LoanMonths.query.count()
+        total_applications = LoanMonths.query.filter(LoanMonths.status == 'Current', LoanMonths.archived == False).count()
 
-        # Get the current user
         user = db.session.get(User, session['user_id'])
-        
+
         return render_template('/superadmin/monitoring_term.html', loans_term=loans_term, total_applications=total_applications, username=user.username)
     
     flash("Unauthorized access!", "danger")
@@ -195,8 +197,8 @@ def superadmin_monitoring():
     if 'role' in session and session['role'] == 'superadmin':
         user = db.session.get(User, session['user_id'])
         loans = Loan.query.filter(Loan.archived == False, Loan.status == 'Current').all()
-        total_amount = sum(loan.amount for loan in loans)  # Calculate total loan amount
-        total_applications = len(loans)  # Count total applications
+        total_amount = sum(loan.amount for loan in loans)  
+        total_applications = len(loans)  
 
         today = date.today()
 
@@ -206,17 +208,17 @@ def superadmin_monitoring():
 
             overdue_payments = LoanPayment.query.filter(
                 LoanPayment.loan_id == loan.loan_id,
-                LoanPayment.due_date < today,  # Overdue only if due date is past
-                LoanPayment.amount_paid < LoanPayment.amount_due  # Payment not met
+                LoanPayment.due_date < today,  
+                LoanPayment.amount_paid < LoanPayment.amount_due  
             ).count()
 
-            # Determine loan status
+            
             if total_paid >= loan.amount:
-                loan.status = "Paid"  # Fully paid
+                loan.status = "Paid"  
             elif overdue_payments > 0:
-                loan.status = "Overdue"  # Has overdue payments
+                loan.status = "Overdue"  
             else:
-                loan.status = "Current"  # Payments ongoing and not overdue
+                loan.status = "Current"  
 
 
         db.session.commit()
@@ -239,7 +241,6 @@ def superadmin_paid_loans():
     if 'role' in session and session['role'] == 'superadmin':
         user = db.session.get(User, session['user_id'])
 
-        # Fetch monthly loans with 'Paid' status
         paid_loans = Loan.query.filter_by(status='Paid', archived=False).all()
         total_paid_loans = len(paid_loans)
 
@@ -258,9 +259,13 @@ def superadmin_paid_loans():
 def superadmin_paid_term_loans():
     if 'role' in session and session['role'] == 'superadmin':
         user = db.session.get(User, session['user_id'])
+
+       
         
         # Fetch term loans with 'Paid' status
         paid_term_loans = LoanMonths.query.filter_by(status='Paid', archived=False).all()
+        for loan in paid_term_loans:
+            loan.payment_history = TermPaymentHistory.query.filter_by(loan_months_id=loan.loan_months_id).all()
         total_paid_term_loans = len(paid_term_loans)  # Count paid term loans
         
         return render_template(
@@ -616,7 +621,8 @@ def process_term_payment(loan_months_id):
 
         if request.method == 'POST':
             paid_amount = request.form['paid_amount']
-            
+            remarks = request.form.get('remarks', '')  # optional remarks field
+
             try:
                 paid_amount = float(paid_amount)
                 
@@ -631,6 +637,14 @@ def process_term_payment(loan_months_id):
                 loan.paid_amount += paid_amount
                 if loan.paid_amount >= loan.loan_amount:
                     loan.status = 'Paid'  
+
+                history = TermPaymentHistory(
+                    loan_months_id=loan.loan_months_id,
+                    amount=paid_amount,
+                    date_paid=datetime.utcnow(),
+                    remarks='Partial Pay'
+                )
+                db.session.add(history)
 
                 db.session.commit()
 
@@ -656,6 +670,16 @@ def term_full_payment(loan_months_id):
 
     loan.paid_amount = loan.loan_amount  
     loan.status = 'Paid' 
+
+    
+    history = TermPaymentHistory(
+        loan_months_id=loan.loan_months_id,
+        amount=loan.loan_amount,
+        date_paid=datetime.utcnow(),
+        remarks="Full payment"
+    )
+    db.session.add(history)
+
     db.session.commit() 
 
     return jsonify({"success": True, "message": "Loan fully paid successfully!"})
