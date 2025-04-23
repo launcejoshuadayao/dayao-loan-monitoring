@@ -140,7 +140,14 @@
                     <td>{{ loan.application_date.strftime('%B %d, %Y') }}</td>
                     <td>{{ loan.months_to_pay }}</td>
                     <td>&#8369;{{ loan.monthly_payment }}</td>
-                    <td>{{ loan.status }}</td>
+                    <td>
+                      <span class="{% if loan.status == 'Current' %}status-current
+                                    {% elif loan.status == 'Paid' %}status-paid
+                                    {% elif loan.status == 'Overdue' %}status-overdue
+                                    {% else %}status-default{% endif %}">
+                        {{ loan.status }}
+                      </span>
+                    </td>
                     
                     
                  
@@ -191,7 +198,6 @@
           <th>Loan Amount</th>
           <th>Application Date</th>
           <th>Due Date</th>
-          <th>Amount Paid</th>
           <th>Loan Status</th>
         </tr>
       </thead>
@@ -203,8 +209,14 @@
           <td>{{ loan.application_date.strftime('%B %d, %Y') }}</td>
           
           <td>{{ loan.due_date.strftime('%B %d, %Y') }}</td>
-          <td>&#8369;{{ loan.paid_amount }}</td>
-          <td>{{ loan.status }}</td>
+          <td>
+            <span class="{% if loan.status == 'Current' %}status-current
+                          {% elif loan.status == 'Paid' %}status-paid
+                          {% elif loan.status == 'Overdue' %}status-overdue
+                          {% else %}status-default{% endif %}">
+              {{ loan.status }}
+            </span>
+          </td>
          
         </tr>
         {% endfor %}

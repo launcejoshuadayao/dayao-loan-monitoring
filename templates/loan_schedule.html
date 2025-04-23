@@ -30,6 +30,7 @@
           <th>Amount Due</th>
           <th>Status</th>
           <th>Amount Paid</th>
+          <th>Penalty Amount</th>
           <th>Actions</th>
         </tr>
       </thead>
@@ -41,6 +42,7 @@
          
           <td>{{ payment.status }}</td>
           <td>&#8369;{{payment.amount_paid}}</td>
+          <td>-</td>
           <td>
             <div class="actions" style="display: flex; justify-content: start; gap: 10px;">
               <a href="{{url_for('monthly_loan_payment', loan_payment_id = payment.loan_payment_id)}}" title="Partial Pay" style="text-decoration: none;">

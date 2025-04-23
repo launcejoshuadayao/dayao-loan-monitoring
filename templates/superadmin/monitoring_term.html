@@ -57,11 +57,18 @@
         <tr class="loan-row">
           <td>SSCC-TP-{{ loan.loan_months_id }}</td>
           <td>{{ loan.lender_name }}</td>
-          <td>&#8369;{{ loan.loan_amount }}</td>
+          <td>&#8369;{{ '{:,.2f}'.format(loan.loan_amount) }}</td>
           <td>{{ loan.application_date.strftime('%B %d, %Y') }}</td>
           <td>{{ loan.due_date.strftime('%B %d, %Y') }}</td>
           <td>&#8369;{{ loan.paid_amount }}</td>
-          <td>{{ loan.status }}</td>
+          <td>
+            <span class="{% if loan.status == 'Current' %}status-current
+                          {% elif loan.status == 'Paid' %}status-paid
+                          {% elif loan.status == 'Overdue' %}status-overdue
+                          {% else %}status-default{% endif %}">
+              {{ loan.status }}
+            </span>
+          </td>
           <td>
             <div
               class="actions"

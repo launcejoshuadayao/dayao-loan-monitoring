@@ -59,6 +59,7 @@ class LoanMonths(db.Model):
     months_to_pay = db.Column(db.Integer, nullable=False)
     due_date = db.Column(db.Date, nullable=False)
     paid_amount = db.Column(db.Float, default=0.0)
+    penalty_amount = db.Column(db.Float, default=0.0)
     status = db.Column(db.String(20), nullable=False, default='Current')
     archived = db.Column(db.Boolean, default=False)
 
@@ -171,14 +172,20 @@ def superadmin_dashboard():
 @app.route('/superadmin/monitoring_term', endpoint='superadmin_monitoring_terms')
 def superadmin_monitoring_terms():
     if 'role' in session and session['role'] == 'superadmin':
-        loans_term = LoanMonths.query.filter(LoanMonths.status == 'Current', LoanMonths.archived == False).all()
+        loans_term = LoanMonths.query.filter(LoanMonths.status.in_(['Current']), LoanMonths.archived == False).all()
 
         for loan in loans_term:
             loan.payment_history = TermPaymentHistory.query.filter_by(loan_months_id=loan.loan_months_id).all()
 
         for loan in loans_term:
+            # Check if overdue and not yet paid
             if loan.due_date < datetime.now().date() and loan.status != 'Paid':
-                loan.status = 'Overdue'
+                if loan.status != 'Overdue':
+                    # First time overdue
+                    loan.status = 'Overdue'
+                    loan.penalty_amount = loan.loan_amount * 0.03  # Calculate penalty
+                    # Optional: don't modify loan_amount field directly
+                    loan.loan_amount += loan.penalty_amount
                 db.session.commit()
 
         total_applications = LoanMonths.query.filter(LoanMonths.status == 'Current', LoanMonths.archived == False).count()

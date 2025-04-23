@@ -68,7 +68,14 @@
                     
                     <td>{{ loan.due_date.strftime('%B %d, %Y') }}</td>
                     <td>&#8369;{{ loan.paid_amount }}</td>
-                    <td>{{ loan.status }}</td>
+                    <td>
+                      <span class="{% if loan.status == 'Current' %}status-current
+                                    {% elif loan.status == 'Paid' %}status-paid
+                                    {% elif loan.status == 'Overdue' %}status-overdue
+                                    {% else %}status-default{% endif %}">
+                        {{ loan.status }}
+                      </span>
+                    </td>
                     <td><div class="actions" style="display: flex; justify-content: start; gap: 10px; ">
                       <a href="#" onclick="confirmUnarchive('{{ loan.loan_months_id }}')" title="Unarchive" style="text-decoration: none;">
                         <i class="ri-inbox-unarchive-fill" style="color: rgb(107, 106, 106)"></i>

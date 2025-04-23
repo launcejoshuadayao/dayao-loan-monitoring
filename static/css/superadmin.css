@@ -28,7 +28,7 @@
         top: 0;
         left: 0;
         bottom: 0;
-        width: 230px;
+        width: 103px;
         height: 100vh;
         padding: 0 1.7rem;  
         overflow: hidden;
@@ -38,7 +38,7 @@
       }
 
       .sidebar:hover{
-        width: 230px;
+        width: 215px;
         transition: 0.5s ease-in;
       }
 
@@ -407,4 +407,34 @@
       .pagination-container button:disabled {
         background-color: #ccc;
         cursor: not-allowed;
+      }
+
+      
+
+      .status-current {
+        background-color: rgba(0, 123, 255, 0.1);
+        color: #007bff;
+        padding: 4px 8px;
+        border-radius: 4px;
+      }
+      
+      .status-paid {
+        background-color: rgba(40, 167, 69, 0.1);
+        color: #28a745;
+        padding: 4px 8px;
+        border-radius: 4px;
+      }
+      
+      .status-overdue {
+        background-color: rgba(220, 53, 69, 0.1);
+        color: #dc3545;
+        padding: 4px 8px;
+        border-radius: 4px;
+      }
+      
+      .status-default {
+        background-color: rgba(83, 82, 82, 0.1);
+        color: #535252;
+        padding: 4px 8px;
+        border-radius: 4px;
       }

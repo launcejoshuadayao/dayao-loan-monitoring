@@ -54,6 +54,8 @@
           <th>Application Date</th>
           <th>Due Date</th>
           <th>Amount Paid</th>
+          <th>Penalty Amount</th>
+          <th>Total Due</th>
           <th>Loan Status</th>
           <th>Action</th>
                 </tr>
@@ -61,12 +63,21 @@
                   {% for loan in overdue_term_loans %}
                   <tr>
                     <td>{{ loan.lender_name }}</td>
-                    <td>&#8369;{{ loan.loan_amount }}</td>
+                    <td>&#8369;{{ '{:,.2f}'.format((loan.loan_amount - loan.penalty_amount)) }}</td>
                     <td>{{ loan.application_date.strftime('%B %d, %Y') }}</td>
                     
                     <td>{{ loan.due_date.strftime('%B %d, %Y') }}</td>
                     <td>&#8369;{{ loan.paid_amount }}</td>
-                    <td>{{ loan.status }}</td>
+                    <td>&#8369;{{ '{:,.2f}'.format(loan.penalty_amount or 0.0) }}</td>
+                    <td style="color: red;">&#8369;{{ '{:,.2f}'.format(loan.loan_amount or 0.0) }}</td>
+                    <td>
+                      <span class="{% if loan.status == 'Current' %}status-current
+                                    {% elif loan.status == 'Paid' %}status-paid
+                                    {% elif loan.status == 'Overdue' %}status-overdue
+                                    {% else %}status-default{% endif %}">
+                        {{ loan.status }}
+                      </span>
+                    </td>
                     <td>
                       <div class="actions" style="display: flex; justify-content: start; gap: 10px;">
                         <a href="{{ url_for('edit_term_loan', loan_months_id=loan.loan_months_id) }}" title="Edit" style="text-decoration: none;">
@@ -88,7 +99,7 @@
                 </tbody>
                 <tfoot>
                   <tr>
-                    <td colspan="7" style="color: whitesmoke;"> <div class="pagination-container1" style="display: flex; flex-direction: row; justify-content: space-between; ">
+                    <td colspan="9" style="color: whitesmoke;"> <div class="pagination-container1" style="display: flex; flex-direction: row; justify-content: space-between; ">
                       <div class="pagination-container12" style="display: flex; justify-content: start; align-items: center; font-size: 16px; font-weight: 400; ">Total Term Overdue Loans: {{ total_overdue_term_loans }}</div>
                       <div class="pagination-container">
                       <label for="rowsPerPage">Rows per page:</label>

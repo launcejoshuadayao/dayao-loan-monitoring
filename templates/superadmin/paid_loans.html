@@ -68,7 +68,14 @@
                       {{ loan.months_to_pay }} {% if loan.months_to_pay == 1 %}month{% else %}months{% endif %}
                     </td>
                     <td>&#8369;{{ loan.monthly_payment }}</td>
-                    <td>{{ loan.status }}</td>
+                    <td>
+                      <span class="{% if loan.status == 'Current' %}status-current
+                                    {% elif loan.status == 'Paid' %}status-paid
+                                    {% elif loan.status == 'Overdue' %}status-overdue
+                                    {% else %}status-default{% endif %}">
+                        {{ loan.status }}
+                      </span>
+                    </td>
                     <td><div class="actions" style="display: flex; justify-content: start; gap: 10px; ">
                       <a href="{{ url_for('edit_monthly_loan', loan_id=loan.loan_id) }}" title="Edit" style="text-decoration: none;">
                         <i class="ri-pencil-fill" style="color: #D99152;"></i>
