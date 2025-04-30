@@ -41,11 +41,11 @@
           <td>&#8369;{{ payment.amount_due }}</td>
          
           <td>
-            <span class="{% if loan.status == 'Current' %}status-current
-                          {% elif loan.status == 'Paid' %}status-paid
-                          {% elif loan.status == 'Overdue' %}status-overdue
+            <span class="{% if payment.status == 'Current' %}status-current
+                          {% elif payment.status == 'Paid' %}status-paid
+                          {% elif payment.status == 'Overdue' %}status-overdue
                           {% else %}status-default{% endif %}">
-              {{ loan.status }}
+              {{ payment.status }}
             </span>
           </td>
           <td>&#8369;{{payment.amount_paid}}</td>
