@@ -221,7 +221,7 @@
             confirmButtonText: "Unarchive"
         }).then((result) => {
             if (result.isConfirmed) {
-                fetch(`/superadmin/unarchive_monthly_loan/${loanId}`, {
+                fetch(`/superadmin/unarchive_term_loan/${loanId}`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" }
                 })
@@ -257,7 +257,7 @@
         confirmButtonText: "Delete"
     }).then((result) => {
         if (result.isConfirmed) {
-            fetch(`/superadmin/delete_monthly_loan/${loanId}`, {
+            fetch(`/superadmin/delete_term_loan/${loanId}`, {  // <-- Updated endpoint
                 method: "POST",
                 headers: { "Content-Type": "application/json" }
             })

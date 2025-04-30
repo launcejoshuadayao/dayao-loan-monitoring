@@ -34,8 +34,7 @@ class LoanPayment(db.Model):
     amount_paid = db.Column(db.Float, nullable=False, default=0.0)
 
     loan = db.relationship('Loan', backref=db.backref('payments', lazy=True))
-
-
+    
 #loan monthly class
 class Loan(db.Model):
     __tablename__ = 'loan'
@@ -84,6 +83,7 @@ class TermPaymentHistory(db.Model):
     remarks = db.Column(db.String(255), nullable=True)
 
     loan = db.relationship('LoanMonths', backref=db.backref('payment_histories', lazy=True))
+    loan_months_id = db.Column(db.Integer, db.ForeignKey('loan_months.loan_months_id'))
 
 
 #llogin
@@ -181,11 +181,13 @@ def superadmin_monitoring_terms():
             # Check if overdue and not yet paid
             if loan.due_date < datetime.now().date() and loan.status != 'Paid':
                 if loan.status != 'Overdue':
-                    # First time overdue
+                    # Calculate remaining balance
+                    remaining_balance = loan.loan_amount - loan.paid_amount
+                    # Apply penalty to the remaining balance
+                    penalty = remaining_balance * 0.03
+                    loan.penalty_amount = penalty
+                    loan.loan_amount += penalty  # This increases the total due
                     loan.status = 'Overdue'
-                    loan.penalty_amount = loan.loan_amount * 0.03  # Calculate penalty
-                    # Optional: don't modify loan_amount field directly
-                    loan.loan_amount += loan.penalty_amount
                 db.session.commit()
 
         total_applications = LoanMonths.query.filter(LoanMonths.status == 'Current', LoanMonths.archived == False).count()
@@ -193,7 +195,7 @@ def superadmin_monitoring_terms():
         user = db.session.get(User, session['user_id'])
 
         return render_template('/superadmin/monitoring_term.html', loans_term=loans_term, total_applications=total_applications, username=user.username)
-    
+
     flash("Unauthorized access!", "danger")
     return redirect(url_for('login'))
 
@@ -1004,7 +1006,7 @@ def archive_monthly_loan(loan_id):
     if not loan:
         return jsonify({"success": False, "message": "Loan not found"}), 404
     
-    loan.archived = True  # Mark as archived
+    loan.archived = True 
     db.session.commit()
     
     return jsonify({"success": True, "message": "Loan archived successfully!"})
@@ -1017,7 +1019,20 @@ def unarchive_monthly_loan(loan_id):
     if not loan:
         return jsonify({"success": False, "message": "Loan not found"}), 404
     
-    loan.archived = False  # Mark as unarchived
+    loan.archived = False  
+    db.session.commit()
+    
+    return jsonify({"success": True, "message": "Loan unarchived successfully!"})
+
+#unarchive term loan
+@app.route('/superadmin/unarchive_term_loan/<int:loan_months_id>', methods=['POST'])
+def unarchive_term_loan(loan_months_id):
+    loan = LoanMonths.query.get(loan_months_id)
+    
+    if not loan:
+        return jsonify({"success": False, "message": "Loan not found"}), 404
+    
+    loan.archived = False  
     db.session.commit()
     
     return jsonify({"success": True, "message": "Loan unarchived successfully!"})
@@ -1031,15 +1046,35 @@ def delete_monthly_loan(loan_id):
         return jsonify({"success": False, "message": "Loan not found"}), 404
 
     try:
-        # Delete related payments first
+        loan_payments = LoanPayment.query.filter_by(loan_id=loan_id).all()
+
+        for payment in loan_payments:
+            PaymentHistory.query.filter_by(loan_payment_id=payment.loan_payment_id).delete()
+
         LoanPayment.query.filter_by(loan_id=loan_id).delete()
 
         db.session.delete(loan)
         db.session.commit()
+
         return jsonify({"success": True, "message": "Loan deleted successfully!"})
     except Exception as e:
         db.session.rollback()
         return jsonify({"success": False, "message": f"Failed to delete loan: {str(e)}"}), 500
+    
+#delete term loan
+@app.route('/superadmin/delete_term_loan/<int:loan_id>', methods=['POST'])
+def delete_tem_loan(loan_id):
+    loan = LoanMonths.query.get_or_404(loan_id)
+
+    try:
+        TermPaymentHistory.query.filter_by(loan_months_id=loan.loan_months_id).delete()
+
+        db.session.delete(loan)
+        db.session.commit()
+        return jsonify({"success": True, "message": "Loan deleted successfully."})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"success": False, "message": "Error deleting loan."})
 
 #partial payment for term
 

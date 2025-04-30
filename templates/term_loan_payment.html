@@ -23,9 +23,9 @@
     <form action="" method="post" id="loanForm" style="padding-top: 10px;">
       
       <p style="padding-bottom: 5px;"><strong>Due Date:</strong>  {{ loan.due_date.strftime('%B %d, %Y') }}</p>
-      <p style="padding-bottom: 5px;"><strong>Loan Amount:</strong> &#8369;{{ loan.loan_amount }}</p>
-      <p style="padding-bottom: 5px;"><strong>Paid Amount:</strong> &#8369;{{ loan.paid_amount }}</p>
-      <p style="padding-bottom: 5px;"><strong>Remaining Balance: </strong> &#8369;{{ remaining_balance }}</p>
+      <p style="padding-bottom: 5px;"><strong>Loan Amount:</strong> &#8369;{{ '{:,.2f}'.format(loan.loan_amount or 0.0) }}</p>
+      <p style="padding-bottom: 5px;"><strong>Paid Amount:</strong> &#8369;{{ '{:,.2f}'.format(loan.paid_amount or 0.0) }}</p>
+      <p style="padding-bottom: 5px;"><strong>Remaining Balance: </strong> &#8369;{{ '{:,.2f}'.format(remaining_balance or 0.0) }}</p>
   
       <div class="form-group" style="padding-top: 15px;">
         <label for="paid_amount">Enter Amount to Pay</label>

@@ -40,7 +40,14 @@
           <td>{{ payment.due_date.strftime('%B %d, %Y') }}</td>
           <td>&#8369;{{ payment.amount_due }}</td>
          
-          <td>{{ payment.status }}</td>
+          <td>
+            <span class="{% if loan.status == 'Current' %}status-current
+                          {% elif loan.status == 'Paid' %}status-paid
+                          {% elif loan.status == 'Overdue' %}status-overdue
+                          {% else %}status-default{% endif %}">
+              {{ loan.status }}
+            </span>
+          </td>
           <td>&#8369;{{payment.amount_paid}}</td>
           <td>-</td>
           <td>
@@ -93,6 +100,9 @@
       </tbody>
     </table>
   </div>
+  <!-- <div style="margin-top: 20px;">
+  <h4>Total Overdue Penalty: <span style="color: red;">&#8369;</span></h4>
+</div> -->
 </div>
 
 <script>
